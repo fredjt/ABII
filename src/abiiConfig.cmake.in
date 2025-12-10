@@ -1,0 +1,21 @@
+@PACKAGE_INIT@
+
+include("${CMAKE_CURRENT_LIST_DIR}/abiiTargets.cmake")
+
+include(CMakeFindDependencyMacro)
+
+# Recreate ICU IMPORTED targets
+
+set(_icu_libdir "@CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_LIBDIR@")
+set(_icu_incdir "@CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_INCLUDEDIR@/icu")
+
+foreach(comp i18n uc)
+    add_library(ICU::${comp} STATIC IMPORTED GLOBAL)
+
+    set_target_properties(ICU::${comp} PROPERTIES
+        IMPORTED_LOCATION
+            "${_icu_libdir}/libicu${comp}.a"
+        INTERFACE_INCLUDE_DIRECTORIES
+            "${_icu_incdir}"
+    )
+endforeach()
