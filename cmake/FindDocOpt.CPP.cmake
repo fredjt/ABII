@@ -12,3 +12,8 @@ FetchContent_Declare(docopt URL "https://github.com/docopt/docopt.cpp/archive/re
 FetchContent_MakeAvailable(docopt)
 
 set(CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE} CACHE STRING "" FORCE)
+
+if (BIT32)
+	set_target_properties(docopt_o PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")
+	set_target_properties(docopt PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")
+endif ()
