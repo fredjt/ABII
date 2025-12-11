@@ -7,7 +7,7 @@
 
 #include <fstream>
 
-#define LOG_DIR "abii_log"
+#define LOG_DIR std::string(getenv("HOME")) + "/abii_log"
 
 class Logger
 {

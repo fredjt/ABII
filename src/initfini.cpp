@@ -22,26 +22,23 @@ std::string get_logfname()
 
     std::string comm;
     std::getline(fcomm, comm);
-    return "abii_log/" + comm + "_" + pid + "_" + tid + ".txt";
+    return std::string(getenv("HOME")) + "/abii_log/" + comm + "_" + pid + "_" + tid + ".txt";
 }
 
 __attribute__((constructor))
 void abii_init()
 {
-    mkdir("abii_log", 0775);
+    mkdir((std::string(getenv("HOME")) + "/abii_log").c_str(), 0775);
 
     abii_stream = std::ofstream(get_logfname(), std::ios::app);
     if (!abii_stream.is_open())
         throw std::runtime_error("Could not open " + get_logfname());
-#if defined(__x86_64__) || defined(_M_X64)
+#ifndef BIT32
     abii_stream << "Loading 64-bit ABII in process: " << getpid() << " thread: " << gettid() << "..."
         << std::endl << std::endl;
-#elif defined(__i386__) || defined(_M_IX86)
+#else
     abii_stream << "Loading 32-bit ABII in process: " << getpid() << " thread: " << gettid() << "..."
         << std::endl << std::endl;
-#else
-    abii_stream << "Loading unknown architecture ABII in process: " << getpid() << " thread: "
-        << gettid() << "..." << std::endl << std::endl;
 #endif
     ENABLE_OVERRIDES
 }
@@ -51,15 +48,12 @@ static void abii_destructor()
 {
     DISABLE_OVERRIDES
     std::ofstream os(get_logfname(), std::ios::app);
-#if defined(__x86_64__) || defined(_M_X64)
+#ifndef BIT32
     os << "Unloading 64-bit ABII in process: " << getpid() << " thread: " << gettid() << "..."
         << std::endl;
-#elif defined(__i386__) || defined(_M_IX86)
+#else
     os << "Unloading 32-bit ABII in process: " << getpid() << " thread: " << gettid() << "..."
         << std::endl;
-#else
-    os << "Unloading unknown architecture ABII in process: " << getpid() << " thread: " << gettid()
-        << "..." << std::endl;
 #endif
     os.flush();
     os.close();

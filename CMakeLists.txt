@@ -12,9 +12,6 @@ if (NOT CMAKE_BUILD_TYPE STREQUAL "Debug" AND NOT CMAKE_BUILD_TYPE STREQUAL "DEB
 endif ()
 
 option(BIT32 "32 BIT")
-if (BIT32)
-	add_compile_definitions(BIT32)
-endif ()
 
 option(BUILD_TESTS "Build tests")
 if (BUILD_TESTS)

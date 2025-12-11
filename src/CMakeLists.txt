@@ -30,8 +30,12 @@ target_link_libraries(abiinterceptor PUBLIC utils)
 set_target_properties(abiinterceptor PROPERTIES COMPILE_FLAGS "-fPIC" LINK_FLAGS "-fPIC")
 
 if (BIT32)
-	set_target_properties(abiinterceptor PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")
-	set_target_properties(utils PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")
+	target_compile_options(abiinterceptor PUBLIC "-m32")
+	target_link_options(abiinterceptor PUBLIC "-m32")
+	target_compile_definitions(abiinterceptor PUBLIC "BIT32")
+	target_compile_options(utils PUBLIC "-m32")
+	target_link_options(utils PUBLIC "-m32")
+	target_compile_definitions(utils PUBLIC "BIT32")
 endif ()
 
 
