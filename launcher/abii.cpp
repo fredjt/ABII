@@ -45,7 +45,7 @@ int main(const int argc, char** argv)
     if (args["--searchpath"])
         ld_library_path += args["--searchpath"].asString();
 
-    std::string ld_preload = args["<plugin>"].asString() + ".so";
+    std::string ld_preload = "lib" + args["<plugin>"].asString() + ".so";
     if (old_ld_library_path != nullptr)
     {
         ld_library_path += ":";
