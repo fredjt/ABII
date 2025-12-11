@@ -21,6 +21,16 @@ if (BUILD_TESTS)
 	enable_testing()
 endif ()
 
+set(CMAKE_INSTALL_BINDIR "bin" CACHE STRING "Executable install directory")
+set(CMAKE_INSTALL_INCLUDEDIR "include/abii" CACHE STRING "Header install directory")
+set(CMAKE_INSTALL_LIBDIR "lib" CACHE STRING "Library install directory")
+
+add_subdirectory(launcher)
+add_subdirectory(src)
+if (BUILD_TESTS)
+	add_subdirectory(test)
+endif ()
+
 # CPack setup
 set(CPACK_PACKAGE_NAME "abii")
 set(CPACK_PACKAGE_VENDOR "Trent Tanchin")
@@ -40,13 +50,3 @@ set(CPACK_SOURCE_IGNORE_FILES
     ~$)
 
 include(CPack)
-
-set(CMAKE_INSTALL_BINDIR "bin" CACHE STRING "Executable install directory")
-set(CMAKE_INSTALL_INCLUDEDIR "include/abii" CACHE STRING "Header install directory")
-set(CMAKE_INSTALL_LIBDIR "lib" CACHE STRING "Library install directory")
-
-add_subdirectory(launcher)
-add_subdirectory(src)
-if (BUILD_TESTS)
-	add_subdirectory(test)
-endif ()
