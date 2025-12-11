@@ -25,7 +25,9 @@ set(CMAKE_INSTALL_BINDIR "bin" CACHE STRING "Executable install directory")
 set(CMAKE_INSTALL_INCLUDEDIR "include/abii" CACHE STRING "Header install directory")
 set(CMAKE_INSTALL_LIBDIR "lib" CACHE STRING "Library install directory")
 
-add_subdirectory(launcher)
+if (NOT BIT32)
+	add_subdirectory(launcher)
+endif ()
 add_subdirectory(src)
 if (BUILD_TESTS)
 	add_subdirectory(test)
@@ -41,6 +43,9 @@ set(CPACK_PACKAGE_VERSION_PATCH "${PROJECT_VERSION_PATCH}")
 set(CPACK_GENERATOR "TGZ;DEB")
 set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Trent Tanchin <trent@tanchin.org>")
 set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${PROJECT_VERSION}")
+if (BIT32)
+	set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "i386")
+endif ()
 
 set(CPACK_SOURCE_IGNORE_FILES
     /build/
