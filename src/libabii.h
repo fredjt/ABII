@@ -34,7 +34,8 @@
         TRACE_LOGGER \
         if ((real_##func) == nullptr) \
         { \
-            (real_##func) = (decltype(real_##func)) get_real_symbol(#func, LIBRARY); \
+            /* (real_##func) = (decltype(real_##func)) get_real_symbol(#func, LIBRARY); */ \
+            (real_##func) = (decltype(real_##func)) dlsym(RTLD_NEXT, #func); \
             if ((real_##func) == nullptr) \
                 std::cerr << "Error in `dlsym`: " << dlerror() << std::endl; \
         } \
@@ -50,7 +51,8 @@
     } \
     if ((real_##func) == nullptr) \
     { \
-        (real_##func) = (decltype(real_##func)) get_real_symbol(#func, LIBRARY); \
+        /* (real_##func) = (decltype(real_##func)) get_real_symbol(#func, LIBRARY); */ \
+        (real_##func) = (decltype(real_##func)) dlsym(RTLD_NEXT, #func); \
         if ((real_##func) == nullptr) \
             std::cerr << "Error in `dlsym`: " << dlerror() << std::endl; \
     }
@@ -81,7 +83,8 @@
     } \
     if ((real_##func) == nullptr) \
     { \
-        (real_##func) = (decltype(real_##func)) get_real_symbol(#func, LIBRARY); \
+        /* (real_##func) = (decltype(real_##func)) get_real_symbol(#func, LIBRARY); */ \
+        (real_##func) = (decltype(real_##func)) dlsym(RTLD_NEXT, #func); \
         if ((real_##func) == nullptr) \
             std::cerr << "Error in `dlsym`: " << dlerror() << std::endl; \
     } \
@@ -140,7 +143,7 @@ struct VirtArgPrinter
 typedef std::string pre_fmtd_str;
 typedef std::vector<VirtArgPrinter*> ArgsVector;
 
-template<typename T = unsigned long long>
+template <typename T = unsigned long long>
 using defines_map = std::vector<std::pair<T, std::string>>;
 
 extern thread_local bool redirect;
@@ -191,7 +194,7 @@ inline void* get_real_symbol(const char* symbol_name, const char* library)
         }
     }
 
-    for (auto& path: candidate_paths)
+    for (auto& path : candidate_paths)
     {
         void* handle = dlopen(path.c_str(), RTLD_NOW | RTLD_NOLOAD);
         if (!handle)
@@ -208,7 +211,7 @@ inline void* get_real_symbol(const char* symbol_name, const char* library)
     return nullptr;
 }
 
-template<typename T>
+template <typename T>
 bool bomb_detector(T* ptr, size_t size = 0)
 {
     if (ptr == nullptr)
@@ -224,7 +227,7 @@ bool bomb_detector(T* ptr, size_t size = 0)
     const int flags = fcntl(pipefds[1], F_GETFL, 0);
     fcntl(pipefds[1], F_SETFL, flags | O_NONBLOCK);
 
-    const ssize_t nbytes = write(pipefds[1], (void*) ptr, size != 0 ? size : sizeof(T));
+    const ssize_t nbytes = write(pipefds[1], (void*)ptr, size != 0 ? size : sizeof(T));
 
     close(pipefds[0]);
     close(pipefds[1]);
@@ -232,7 +235,7 @@ bool bomb_detector(T* ptr, size_t size = 0)
     return nbytes == (size != 0 ? size : sizeof(T));
 }
 
-template<>
+template <>
 inline bool bomb_detector<char>(char* ptr, size_t size)
 {
     if (ptr == nullptr)
@@ -256,12 +259,13 @@ inline bool bomb_detector<char>(char* ptr, size_t size)
             return false;
         if (*ptr == 0)
             break;
-    } while (*ptr++ != 0 && size == 0);
+    }
+    while (*ptr++ != 0 && size == 0);
 
     return true;
 }
 
-template<>
+template <>
 inline bool bomb_detector<const char>(const char* ptr, size_t size)
 {
     if (ptr == nullptr)
@@ -285,7 +289,8 @@ inline bool bomb_detector<const char>(const char* ptr, size_t size)
             return false;
         if (*ptr == 0)
             break;
-    } while (*ptr++ != 0 && size == 0);
+    }
+    while (*ptr++ != 0 && size == 0);
 
     return true;
 }
@@ -298,31 +303,31 @@ inline std::string demangle(const std::string& name)
     return t;
 }
 
-template<typename T>
+template <typename T>
 std::string get_type([[maybe_unused]] T& i) requires std::is_polymorphic_v<T>
 {
-    const void* vptr = *(void**) &i;
-    if (const void* rtti = vptr ? ((void**) vptr)[-1] : nullptr; rtti != nullptr)
+    const void* vptr = *(void**)&i;
+    if (const void* rtti = vptr ? ((void**)vptr)[-1] : nullptr; rtti != nullptr)
         return demangle(typeid(i).name());
     return demangle(typeid(T).name());
 }
 
-template<typename T>
+template <typename T>
 std::string get_type([[maybe_unused]] T& i) requires (!std::is_polymorphic_v<T>)
 {
     return demangle(typeid(i).name());
 }
 
-template<typename T>
+template <typename T>
 std::string get_type([[maybe_unused]] const T& i) requires (std::is_const_v<T> && std::is_polymorphic_v<T>)
 {
-    const void* vptr = *(void**) &i;
-    if (const void* rtti = vptr ? ((void**) vptr)[-1] : nullptr; rtti != nullptr)
+    const void* vptr = *(void**)&i;
+    if (const void* rtti = vptr ? ((void**)vptr)[-1] : nullptr; rtti != nullptr)
         return demangle(typeid(i).name());
     return demangle(typeid(T).name());
 }
 
-template<typename T>
+template <typename T>
 std::string get_type([[maybe_unused]] const T& i) requires (std::is_const_v<T> && !std::is_polymorphic_v<T>)
 {
     return demangle(typeid(i).name());
@@ -338,15 +343,16 @@ inline std::string get_symbol_name(const void* ptr)
     return "";
 }
 
-template<typename T, typename... defines_maps>
+template <typename T, typename... defines_maps>
 std::string print_enum_entry(const T v, const defines_maps&... maps)
 {
     std::stringstream ss;
     auto first = true;
 
-    auto search_in_map = [&](const auto& defines) {
-        for (const auto& [define, str]: defines)
-            if (v == (T) define)
+    auto search_in_map = [&](const auto& defines)
+    {
+        for (const auto& [define, str] : defines)
+            if (v == (T)define)
             {
                 ss << (first ? "" : " & ") << str;
                 first = false;
@@ -360,15 +366,16 @@ std::string print_enum_entry(const T v, const defines_maps&... maps)
     return ss.str();
 }
 
-template<typename... defines_maps>
+template <typename... defines_maps>
 std::string print_enum_entry(const char* v, const defines_maps&... maps)
 {
     std::stringstream ss;
     auto first = true;
 
-    auto search_in_map = [&](const auto& defines) {
-        for (const auto& [define, str]: defines)
-            if (strcmp(v, (const char*) define) == 0)
+    auto search_in_map = [&](const auto& defines)
+    {
+        for (const auto& [define, str] : defines)
+            if (strcmp(v, (const char*)define) == 0)
             {
                 ss << (first ? "" : " & ") << str;
                 first = false;
@@ -382,15 +389,16 @@ std::string print_enum_entry(const char* v, const defines_maps&... maps)
     return ss.str();
 }
 
-template<typename T, typename... defines_maps>
+template <typename T, typename... defines_maps>
 std::string print_or_enum_entries(const T v, const defines_maps&... maps)
 {
     std::stringstream ss;
     auto first = true;
 
-    auto search_in_map = [&](const auto& defines) {
-        for (const auto& [define, str]: defines)
-            if (v == (T) define || ((T) define > 0 && v >= (T) define && (v & (T) define) == (T) define))
+    auto search_in_map = [&](const auto& defines)
+    {
+        for (const auto& [define, str] : defines)
+            if (v == (T)define || ((T)define > 0 && v >= (T)define && (v & (T)define) == (T)define))
             {
                 ss << (first ? "" : " | ") << str;
                 first = false;
@@ -425,13 +433,14 @@ inline std::string print_diff(const std::string& arg1, const std::string& arg2)
     auto i = 0, j = 0;
     auto first = true;
 
-    auto print_line = [&](const std::string& line, const std::string& prefix) {
+    auto print_line = [&](const std::string& line, const std::string& prefix)
+    {
         if (!first) ss << std::endl;
         first = false;
         ss << prefix << line;
     };
 
-    for (const auto& [idx1, idx2, identical]: lcs)
+    for (const auto& [idx1, idx2, identical] : lcs)
     {
         while (i < idx1 && j < idx2)
         {
@@ -450,7 +459,8 @@ inline std::string print_diff(const std::string& arg1, const std::string& arg2)
         if (!identical)
         {
             print_line(lines1[idx1] + " --> " + strip(lines2[idx2], '\t', FRONT), "");
-        } else
+        }
+        else
         {
             print_line(lines1[idx1], "");
         }
@@ -510,7 +520,8 @@ struct ArgsPrinter
                 *func_->get_os() << " = " << ret_val_;
             *func_->get_os() << std::endl;
         }
-        std::ranges::for_each(args_, [&](const auto& arg) {
+        std::ranges::for_each(args_, [&](const auto& arg)
+        {
             std::stringstream ss2;
             std::get<0>(arg)->set_os(&ss2);
             std::get<0>(arg)->print_arg();
@@ -538,7 +549,7 @@ struct ReferenceType
     virtual size_t get_ref() = 0;
 };
 
-template<typename T>
+template <typename T>
 struct Reference final : ReferenceType
 {
     explicit Reference(T& ref) : ref_(ref) {}

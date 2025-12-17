@@ -125,7 +125,7 @@ int main(const int argc, char** argv)
     }
 
     setenv("LD_LIBRARY_PATH", ld_library_path.c_str(), 1);
-    setenv("LD_PRELOAD", (std::string(ld_preload.c_str()) + ":" + HOOKS_LIB).c_str(), 1);
+    setenv("LD_PRELOAD", (std::string(HOOKS_LIB) + ":" + ld_preload.c_str()).c_str(), 1);
 
     std::cout << "LD_LIBRARY_PATH=" << ld_library_path << std::endl;
     std::cout << "LD_PRELOAD=" << ld_preload << std::endl;
