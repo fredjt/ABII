@@ -48,7 +48,7 @@ struct ArgPrinter<T*>final : VirtArgPrinter
     [[nodiscard]] std::string enum_printer(V& arg) const
     {
         return enum_printers_.contains(depth_)
-                   ? enum_printers_.find(depth_)->second(reinterpret_cast<const void*>(&arg))
+                   ? enum_printers_.find(depth_)->second(static_cast<const void*>(&arg))
                    : "";
     }
 
@@ -167,7 +167,7 @@ struct ArgPrinter<const T*>final : VirtArgPrinter
     [[nodiscard]] std::string enum_printer(const V& arg) const
     {
         return enum_printers_.contains(depth_)
-                   ? enum_printers_.find(depth_)->second(reinterpret_cast<const void*>(&arg))
+                   ? enum_printers_.find(depth_)->second(static_cast<const void*>(&arg))
                    : "";
     }
 
@@ -194,7 +194,7 @@ struct ArgPrinter<const T*>final : VirtArgPrinter
     [[nodiscard]] std::string get_value() const override
     {
         std::stringstream ss;
-        ss << reinterpret_cast<const void*>(arg_);
+        ss << static_cast<const void*>(arg_);
         return ss.str();
     }
 
@@ -260,7 +260,7 @@ struct ArgPrinter<T* const>final : VirtArgPrinter
     [[nodiscard]] std::string enum_printer(V& arg) const
     {
         return enum_printers_.contains(depth_)
-                   ? enum_printers_.find(depth_)->second(reinterpret_cast<const void*>(&arg))
+                   ? enum_printers_.find(depth_)->second(static_cast<const void*>(&arg))
                    : "";
     }
 
@@ -287,7 +287,7 @@ struct ArgPrinter<T* const>final : VirtArgPrinter
     [[nodiscard]] std::string get_value() const override
     {
         std::stringstream ss;
-        ss << reinterpret_cast<void*>(arg_);
+        ss << static_cast<void*>(arg_);
         return ss.str();
     }
 
@@ -353,7 +353,7 @@ struct ArgPrinter<const T* const>final : VirtArgPrinter
     [[nodiscard]] std::string enum_printer(V& arg) const
     {
         return enum_printers_.contains(depth_)
-                   ? enum_printers_.find(depth_)->second(reinterpret_cast<const void*>(&arg))
+                   ? enum_printers_.find(depth_)->second(static_cast<const void*>(&arg))
                    : "";
     }
 
@@ -380,7 +380,7 @@ struct ArgPrinter<const T* const>final : VirtArgPrinter
     [[nodiscard]] std::string get_value() const override
     {
         std::stringstream ss;
-        ss << reinterpret_cast<const void*>(arg_);
+        ss << static_cast<const void*>(arg_);
         return ss.str();
     }
 
@@ -421,23 +421,23 @@ size_t ArgPrinter<const T* const>::def_len_ = 0;
 template <typename T>
 void ArgPrinter<T*>::print_arg()
 {
-    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << reinterpret_cast<void*>(arg_);
+    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<void*>(arg_);
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
     if (depth_ != -1)
         --depth_;
-    if (const auto name = get_symbol_name(reinterpret_cast<void*>(arg_)); !name.empty())
+    if (const auto name = get_symbol_name(static_cast<void*>(arg_)); !name.empty())
         *os_ << " (" << name << ")";
     if (recurse_ && bomb_detector(arg_, len_->get_ref()))
     {
         *os_ << std::endl;
         const auto old_prefix = prefix;
         prefix += "\t";
-        if (std::ranges::find(used_addrs, reinterpret_cast<uintptr_t>(arg_)) != used_addrs.end())
+        if (std::ranges::find(used_addrs, static_cast<uintptr_t>(arg_)) != used_addrs.end())
             *os_ << prefix << "[RECURSION]";
         else
         {
-            used_addrs.push_back(reinterpret_cast<uintptr_t>(arg_));
+            used_addrs.push_back(static_cast<uintptr_t>(arg_));
             if (len_->get_ref() != 0)
                 for (auto i = 0; end_test_(i); ++i)
                 {
@@ -492,7 +492,7 @@ inline void ArgPrinter<char*>::print_arg()
 
 
 #endif
-    *os_ << " " << reinterpret_cast<void*>(arg_);
+    *os_ << " " << static_cast<void*>(arg_);
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
     if (depth_ != -1)
@@ -509,11 +509,11 @@ inline void ArgPrinter<char*>::print_arg()
             *os_ << std::endl;
             const auto old_prefix = prefix;
             prefix += "\t";
-            if (std::ranges::find(used_addrs, reinterpret_cast<uintptr_t>(arg_)) != used_addrs.end())
+            if (std::ranges::find(used_addrs, static_cast<uintptr_t>(arg_)) != used_addrs.end())
                 *os_ << prefix << "[RECURSION]";
             else
             {
-                used_addrs.push_back(reinterpret_cast<uintptr_t>(arg_));
+                used_addrs.push_back(static_cast<uintptr_t>(arg_));
                 for (auto i = 0; len_->get_ref() == 0 ? i == 0 || arg_[i - 1] != 0 : end_test_(i); ++i)
                 {
                     std::stringstream ss;
@@ -542,7 +542,7 @@ inline void ArgPrinter<char*>::print_arg()
 template <>
 inline void ArgPrinter<wchar_t*>::print_arg()
 {
-    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << reinterpret_cast<void*>(arg_);
+    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<void*>(arg_);
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
     if (depth_ != -1)
@@ -559,11 +559,11 @@ inline void ArgPrinter<wchar_t*>::print_arg()
             *os_ << std::endl;
             const auto old_prefix = prefix;
             prefix += "\t";
-            if (std::ranges::find(used_addrs, reinterpret_cast<uintptr_t>(arg_)) != used_addrs.end())
+            if (std::ranges::find(used_addrs, static_cast<uintptr_t>(arg_)) != used_addrs.end())
                 *os_ << prefix << "[RECURSION]";
             else
             {
-                used_addrs.push_back(reinterpret_cast<uintptr_t>(arg_));
+                used_addrs.push_back(static_cast<uintptr_t>(arg_));
                 for (auto i = 0; len_->get_ref() == 0 ? i == 0 || arg_[i - 1] != 0 : end_test_(i); ++i)
                 {
                     std::stringstream ss;
@@ -640,23 +640,23 @@ inline void ArgPrinter<void*>::print_arg()
 template <typename T>
 void ArgPrinter<const T*>::print_arg()
 {
-    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << reinterpret_cast<const void*>(arg_);
+    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<const void*>(arg_);
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
     if (depth_ != -1)
         --depth_;
-    if (const auto name = get_symbol_name(reinterpret_cast<const void*>(arg_)); !name.empty())
+    if (const auto name = get_symbol_name(static_cast<const void*>(arg_)); !name.empty())
         *os_ << " (" << name << ")";
     if (recurse_ && bomb_detector(arg_, len_->get_ref()))
     {
         *os_ << std::endl;
         const auto old_prefix = prefix;
         prefix += "\t";
-        if (std::ranges::find(used_addrs, reinterpret_cast<uintptr_t>(arg_)) != used_addrs.end())
+        if (std::ranges::find(used_addrs, static_cast<uintptr_t>(arg_)) != used_addrs.end())
             *os_ << prefix << "[RECURSION]";
         else
         {
-            used_addrs.push_back(reinterpret_cast<uintptr_t>(arg_));
+            used_addrs.push_back(static_cast<uintptr_t>(arg_));
             if (len_->get_ref() != 0)
                 for (auto i = 0; end_test_(i); ++i)
                 {
@@ -689,7 +689,7 @@ void ArgPrinter<const T*>::print_arg()
 template <>
 inline void ArgPrinter<const char*>::print_arg()
 {
-    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << reinterpret_cast<const void*>(arg_);
+    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<const void*>(arg_);
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
     if (depth_ != -1)
@@ -706,11 +706,11 @@ inline void ArgPrinter<const char*>::print_arg()
             *os_ << std::endl;
             const auto old_prefix = prefix;
             prefix += "\t";
-            if (std::ranges::find(used_addrs, reinterpret_cast<uintptr_t>(arg_)) != used_addrs.end())
+            if (std::ranges::find(used_addrs, static_cast<uintptr_t>(arg_)) != used_addrs.end())
                 *os_ << prefix << "[RECURSION]";
             else
             {
-                used_addrs.push_back(reinterpret_cast<uintptr_t>(arg_));
+                used_addrs.push_back(static_cast<uintptr_t>(arg_));
                 for (auto i = 0; len_->get_ref() == 0 ? i == 0 || arg_[i - 1] != 0 : end_test_(i); ++i)
                 {
                     std::stringstream ss;
@@ -736,7 +736,7 @@ inline void ArgPrinter<const char*>::print_arg()
 template <>
 inline void ArgPrinter<const wchar_t*>::print_arg()
 {
-    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << reinterpret_cast<const void*>(arg_);
+    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<const void*>(arg_);
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
     if (depth_ != -1)
@@ -753,11 +753,11 @@ inline void ArgPrinter<const wchar_t*>::print_arg()
             *os_ << std::endl;
             const auto old_prefix = prefix;
             prefix += "\t";
-            if (std::ranges::find(used_addrs, reinterpret_cast<uintptr_t>(arg_)) != used_addrs.end())
+            if (std::ranges::find(used_addrs, static_cast<uintptr_t>(arg_)) != used_addrs.end())
                 *os_ << prefix << "[RECURSION]";
             else
             {
-                used_addrs.push_back(reinterpret_cast<uintptr_t>(arg_));
+                used_addrs.push_back(static_cast<uintptr_t>(arg_));
                 for (auto i = 0; len_->get_ref() == 0 ? i == 0 || arg_[i - 1] != 0 : end_test_(i); ++i)
                 {
                     std::stringstream ss;
@@ -804,23 +804,23 @@ inline void ArgPrinter<const void*>::print_arg()
 template <typename T>
 void ArgPrinter<T* const>::print_arg()
 {
-    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << reinterpret_cast<void*>(arg_);
+    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<void*>(arg_);
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
     if (depth_ != -1)
         --depth_;
-    if (const auto name = get_symbol_name(reinterpret_cast<void*>(arg_)); !name.empty())
+    if (const auto name = get_symbol_name(static_cast<void*>(arg_)); !name.empty())
         *os_ << " (" << name << ")";
     if (recurse_ && bomb_detector(arg_, len_->get_ref()))
     {
         *os_ << std::endl;
         const auto old_prefix = prefix;
         prefix += "\t";
-        if (std::ranges::find(used_addrs, reinterpret_cast<uintptr_t>(arg_)) != used_addrs.end())
+        if (std::ranges::find(used_addrs, static_cast<uintptr_t>(arg_)) != used_addrs.end())
             *os_ << prefix << "[RECURSION]";
         else
         {
-            used_addrs.push_back(reinterpret_cast<uintptr_t>(arg_));
+            used_addrs.push_back(static_cast<uintptr_t>(arg_));
             if (len_->get_ref() != 0)
                 for (auto i = 0; end_test_(i); ++i)
                 {
@@ -853,7 +853,7 @@ void ArgPrinter<T* const>::print_arg()
 template <>
 inline void ArgPrinter<char* const>::print_arg()
 {
-    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << reinterpret_cast<void*>(arg_);
+    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<void*>(arg_);
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
     if (depth_ != -1)
@@ -870,11 +870,11 @@ inline void ArgPrinter<char* const>::print_arg()
             *os_ << std::endl;
             const auto old_prefix = prefix;
             prefix += "\t";
-            if (std::ranges::find(used_addrs, reinterpret_cast<uintptr_t>(arg_)) != used_addrs.end())
+            if (std::ranges::find(used_addrs, static_cast<uintptr_t>(arg_)) != used_addrs.end())
                 *os_ << prefix << "[RECURSION]";
             else
             {
-                used_addrs.push_back(reinterpret_cast<uintptr_t>(arg_));
+                used_addrs.push_back(static_cast<uintptr_t>(arg_));
                 for (auto i = 0; len_->get_ref() == 0 ? i == 0 || arg_[i - 1] != 0 : end_test_(i); ++i)
                 {
                     std::stringstream ss;
@@ -900,7 +900,7 @@ inline void ArgPrinter<char* const>::print_arg()
 template <>
 inline void ArgPrinter<wchar_t* const>::print_arg()
 {
-    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << reinterpret_cast<void*>(arg_);
+    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<void*>(arg_);
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
     if (depth_ != -1)
@@ -917,11 +917,11 @@ inline void ArgPrinter<wchar_t* const>::print_arg()
             *os_ << std::endl;
             const auto old_prefix = prefix;
             prefix += "\t";
-            if (std::ranges::find(used_addrs, reinterpret_cast<uintptr_t>(arg_)) != used_addrs.end())
+            if (std::ranges::find(used_addrs, static_cast<uintptr_t>(arg_)) != used_addrs.end())
                 *os_ << prefix << "[RECURSION]";
             else
             {
-                used_addrs.push_back(reinterpret_cast<uintptr_t>(arg_));
+                used_addrs.push_back(static_cast<uintptr_t>(arg_));
                 for (auto i = 0; len_->get_ref() == 0 ? i == 0 || arg_[i - 1] != 0 : end_test_(i); ++i)
                 {
                     std::stringstream ss;
@@ -1013,23 +1013,23 @@ inline void ArgPrinter<volatile void* const>::print_arg()
 template <typename T>
 void ArgPrinter<const T* const>::print_arg()
 {
-    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << reinterpret_cast<const void*>(arg_);
+    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<const void*>(arg_);
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
     if (depth_ != -1)
         --depth_;
-    if (const auto name = get_symbol_name(reinterpret_cast<const void*>(arg_)); !name.empty())
+    if (const auto name = get_symbol_name(static_cast<const void*>(arg_)); !name.empty())
         *os_ << " (" << name << ")";
     if (recurse_ && bomb_detector(arg_, len_->get_ref()))
     {
         *os_ << std::endl;
         const auto old_prefix = prefix;
         prefix += "\t";
-        if (std::ranges::find(used_addrs, reinterpret_cast<uintptr_t>(arg_)) != used_addrs.end())
+        if (std::ranges::find(used_addrs, static_cast<uintptr_t>(arg_)) != used_addrs.end())
             *os_ << prefix << "[RECURSION]";
         else
         {
-            used_addrs.push_back(reinterpret_cast<uintptr_t>(arg_));
+            used_addrs.push_back(static_cast<uintptr_t>(arg_));
             if (len_->get_ref() != 0)
                 for (auto i = 0; end_test_(i); ++i)
                 {
@@ -1062,7 +1062,7 @@ void ArgPrinter<const T* const>::print_arg()
 template <>
 inline void ArgPrinter<const char* const>::print_arg()
 {
-    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << reinterpret_cast<const void*>(arg_);
+    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<const void*>(arg_);
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
     if (depth_ != -1)
@@ -1079,11 +1079,11 @@ inline void ArgPrinter<const char* const>::print_arg()
             *os_ << std::endl;
             const auto old_prefix = prefix;
             prefix += "\t";
-            if (std::ranges::find(used_addrs, reinterpret_cast<uintptr_t>(arg_)) != used_addrs.end())
+            if (std::ranges::find(used_addrs, static_cast<uintptr_t>(arg_)) != used_addrs.end())
                 *os_ << prefix << "[RECURSION]";
             else
             {
-                used_addrs.push_back(reinterpret_cast<uintptr_t>(arg_));
+                used_addrs.push_back(static_cast<uintptr_t>(arg_));
                 for (auto i = 0; len_->get_ref() == 0 ? i == 0 || arg_[i - 1] != 0 : end_test_(i); ++i)
                 {
                     std::stringstream ss;
@@ -1109,7 +1109,7 @@ inline void ArgPrinter<const char* const>::print_arg()
 template <>
 inline void ArgPrinter<const wchar_t* const>::print_arg()
 {
-    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << reinterpret_cast<const void*>(arg_);
+    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<const void*>(arg_);
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
     if (depth_ != -1)
@@ -1121,16 +1121,16 @@ inline void ArgPrinter<const wchar_t* const>::print_arg()
         *os_ << std::endl;
         const auto old_prefix = prefix;
         prefix += "\t";
-        if (std::ranges::find(used_addrs, reinterpret_cast<uintptr_t>(arg_)) != used_addrs.end())
+        if (std::ranges::find(used_addrs, static_cast<uintptr_t>(arg_)) != used_addrs.end())
             *os_ << prefix << "[RECURSION]";
         else
         {
             auto arg = wide_to_narrow_str(arg_);
             replace_all(arg, "\n", "\\n");
             *os_ << " {" << arg << "}";
-            if (std::ranges::find(used_addrs, reinterpret_cast<uintptr_t>(arg_)) == used_addrs.end())
+            if (std::ranges::find(used_addrs, static_cast<uintptr_t>(arg_)) == used_addrs.end())
             {
-                used_addrs.push_back(reinterpret_cast<uintptr_t>(arg_));
+                used_addrs.push_back(static_cast<uintptr_t>(arg_));
                 for (auto i = 0; len_->get_ref() == 0 ? i == 0 || arg_[i - 1] != 0 : end_test_(i); ++i)
                 {
                     std::stringstream ss;

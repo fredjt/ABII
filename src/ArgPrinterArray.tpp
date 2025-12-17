@@ -43,7 +43,7 @@ struct ArgPrinter<T[N]>final : VirtArgPrinter
     [[nodiscard]] std::string enum_printer(V& arg) const
     {
         return enum_printers_.contains(depth_)
-                   ? enum_printers_.find(depth_)->second(reinterpret_cast<const void*>(&arg))
+                   ? enum_printers_.find(depth_)->second(static_cast<const void*>(&arg))
                    : "";
     }
 
@@ -155,7 +155,7 @@ struct ArgPrinter<__locale_data* const[N]>final : VirtArgPrinter
     [[nodiscard]] std::string enum_printer(V& arg) const
     {
         return enum_printers_.contains(depth_)
-                   ? enum_printers_.find(depth_)->second(reinterpret_cast<const void*>(&arg))
+                   ? enum_printers_.find(depth_)->second(static_cast<const void*>(&arg))
                    : "";
     }
 
@@ -241,7 +241,7 @@ struct ArgPrinter<const T[N]>final : VirtArgPrinter
     [[nodiscard]] std::string enum_printer(V& arg) const
     {
         return enum_printers_.contains(depth_)
-                   ? enum_printers_.find(depth_)->second(reinterpret_cast<const void*>(&arg))
+                   ? enum_printers_.find(depth_)->second(static_cast<const void*>(&arg))
                    : "";
     }
 
@@ -326,7 +326,7 @@ struct ArgPrinter<T[0]>final : VirtArgPrinter
     [[nodiscard]] std::string enum_printer(V& arg) const
     {
         return enum_printers_.contains(depth_)
-                   ? enum_printers_.find(depth_)->second(reinterpret_cast<const void*>(&arg))
+                   ? enum_printers_.find(depth_)->second(static_cast<const void*>(&arg))
                    : "";
     }
 
@@ -408,7 +408,7 @@ struct ArgPrinter<const T[0]>final : VirtArgPrinter
     [[nodiscard]] std::string enum_printer(V& arg) const
     {
         return enum_printers_.contains(depth_)
-                   ? enum_printers_.find(depth_)->second(reinterpret_cast<const void*>(&arg))
+                   ? enum_printers_.find(depth_)->second(static_cast<const void*>(&arg))
                    : "";
     }
 
@@ -473,7 +473,7 @@ size_t ArgPrinter<const T[0]>::def_len_ = 0;
 template <typename T, size_t N>
 void ArgPrinter<T[N]>::print_arg()
 {
-    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << reinterpret_cast<void*>(arg_);
+    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<void*>(arg_);
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
     if (depth_ != -1)
@@ -483,11 +483,11 @@ void ArgPrinter<T[N]>::print_arg()
         *os_ << std::endl;
         const auto old_prefix = prefix;
         prefix += "\t";
-        if (std::ranges::find(used_addrs, reinterpret_cast<uintptr_t>(arg_)) != used_addrs.end())
+        if (std::ranges::find(used_addrs, static_cast<uintptr_t>(arg_)) != used_addrs.end())
             *os_ << prefix << "[RECURSION]";
         else
         {
-            used_addrs.push_back(reinterpret_cast<uintptr_t>(arg_));
+            used_addrs.push_back(static_cast<uintptr_t>(arg_));
             for (auto i = 0; i < N; ++i)
             {
                 std::stringstream ss;
@@ -541,7 +541,7 @@ inline void ArgPrinter<va_list>::print_arg()
 template <typename T, size_t N>
 void ArgPrinter<const T[N]>::print_arg()
 {
-    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << reinterpret_cast<const void*>(arg_);
+    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<const void*>(arg_);
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
     if (depth_ != -1)
@@ -551,11 +551,11 @@ void ArgPrinter<const T[N]>::print_arg()
         *os_ << std::endl;
         const auto old_prefix = prefix;
         prefix += "\t";
-        if (std::ranges::find(used_addrs, reinterpret_cast<uintptr_t>(arg_)) != used_addrs.end())
+        if (std::ranges::find(used_addrs, static_cast<uintptr_t>(arg_)) != used_addrs.end())
             *os_ << prefix << "[RECURSION]";
         else
         {
-            used_addrs.push_back(reinterpret_cast<uintptr_t>(arg_));
+            used_addrs.push_back(static_cast<uintptr_t>(arg_));
             for (auto i = 0; i < N; ++i)
             {
                 std::stringstream ss;
@@ -577,7 +577,7 @@ void ArgPrinter<const T[N]>::print_arg()
 template <size_t N>
 void ArgPrinter<__locale_data* const[N]>::print_arg()
 {
-    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << reinterpret_cast<void*>(arg_);
+    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<void*>(arg_);
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
     if (depth_ != -1)
@@ -587,11 +587,11 @@ void ArgPrinter<__locale_data* const[N]>::print_arg()
         *os_ << std::endl;
         const auto old_prefix = prefix;
         prefix += "\t";
-        if (std::ranges::find(used_addrs, reinterpret_cast<uintptr_t>(arg_)) != used_addrs.end())
+        if (std::ranges::find(used_addrs, static_cast<uintptr_t>(arg_)) != used_addrs.end())
             *os_ << prefix << "[RECURSION]";
         else
         {
-            used_addrs.push_back(reinterpret_cast<uintptr_t>(arg_));
+            used_addrs.push_back(static_cast<uintptr_t>(arg_));
             for (auto i = 0; i < N; ++i)
             {
                 std::stringstream ss;
@@ -622,7 +622,7 @@ void ArgPrinter<__locale_data* const[N]>::print_arg()
 template <typename T>
 void ArgPrinter<T[0]>::print_arg()
 {
-    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << reinterpret_cast<void*>(arg_);
+    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<void*>(arg_);
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
     if (print_endl_)
@@ -641,7 +641,7 @@ void ArgPrinter<T[0]>::print_arg()
 template <typename T>
 void ArgPrinter<const T[0]>::print_arg()
 {
-    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << reinterpret_cast<const void*>(arg_);
+    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<const void*>(arg_);
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
     if (print_endl_)

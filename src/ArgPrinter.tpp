@@ -43,7 +43,7 @@ struct ArgPrinter final : VirtArgPrinter
     [[nodiscard]] std::string enum_printer(V& arg) const
     {
         return enum_printers_.contains(depth_)
-                   ? enum_printers_.find(depth_)->second(reinterpret_cast<const void*>(&arg))
+                   ? enum_printers_.find(depth_)->second(static_cast<const void*>(&arg))
                    : "";
     }
 
@@ -117,7 +117,7 @@ struct ArgPrinter<const T>final : VirtArgPrinter
     [[nodiscard]] std::string enum_printer(V& arg) const
     {
         return enum_printers_.contains(depth_)
-                   ? enum_printers_.find(depth_)->second(reinterpret_cast<const void*>(&arg))
+                   ? enum_printers_.find(depth_)->second(static_cast<const void*>(&arg))
                    : "";
     }
 
