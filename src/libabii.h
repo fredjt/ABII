@@ -227,7 +227,7 @@ bool bomb_detector(T* ptr, size_t size = 0)
     const int flags = fcntl(pipefds[1], F_GETFL, 0);
     fcntl(pipefds[1], F_SETFL, flags | O_NONBLOCK);
 
-    const ssize_t nbytes = write(pipefds[1], (void*)ptr, size != 0 ? size : sizeof(T));
+    const ssize_t nbytes = write(pipefds[1], reinterpret_cast<const void*>(ptr), size != 0 ? size : sizeof(T));
 
     close(pipefds[0]);
     close(pipefds[1]);
@@ -306,8 +306,8 @@ inline std::string demangle(const std::string& name)
 template <typename T>
 std::string get_type([[maybe_unused]] T& i) requires std::is_polymorphic_v<T>
 {
-    const void* vptr = *(void**)&i;
-    if (const void* rtti = vptr ? ((void**)vptr)[-1] : nullptr; rtti != nullptr)
+    const void* vptr = *reinterpret_cast<void**>(&i);
+    if (const void* rtti = vptr ? reinterpret_cast<void* const*>(vptr)[-1] : nullptr; rtti != nullptr)
         return demangle(typeid(i).name());
     return demangle(typeid(T).name());
 }
@@ -321,8 +321,8 @@ std::string get_type([[maybe_unused]] T& i) requires (!std::is_polymorphic_v<T>)
 template <typename T>
 std::string get_type([[maybe_unused]] const T& i) requires (std::is_const_v<T> && std::is_polymorphic_v<T>)
 {
-    const void* vptr = *(void**)&i;
-    if (const void* rtti = vptr ? ((void**)vptr)[-1] : nullptr; rtti != nullptr)
+    const void* vptr = *reinterpret_cast<void**>(&i);
+    if (const void* rtti = vptr ? reinterpret_cast<void* const*>(vptr)[-1] : nullptr; rtti != nullptr)
         return demangle(typeid(i).name());
     return demangle(typeid(T).name());
 }
@@ -352,7 +352,7 @@ std::string print_enum_entry(const T v, const defines_maps&... maps)
     auto search_in_map = [&](const auto& defines)
     {
         for (const auto& [define, str] : defines)
-            if (v == (T)define)
+            if (v == reinterpret_cast<T>(define))
             {
                 ss << (first ? "" : " & ") << str;
                 first = false;
@@ -375,7 +375,7 @@ std::string print_enum_entry(const char* v, const defines_maps&... maps)
     auto search_in_map = [&](const auto& defines)
     {
         for (const auto& [define, str] : defines)
-            if (strcmp(v, (const char*)define) == 0)
+            if (strcmp(v, reinterpret_cast<const char*>(define)) == 0)
             {
                 ss << (first ? "" : " & ") << str;
                 first = false;
@@ -398,7 +398,8 @@ std::string print_or_enum_entries(const T v, const defines_maps&... maps)
     auto search_in_map = [&](const auto& defines)
     {
         for (const auto& [define, str] : defines)
-            if (v == (T)define || ((T)define > 0 && v >= (T)define && (v & (T)define) == (T)define))
+            if (v == reinterpret_cast<T>(define) || (reinterpret_cast<T>(define) > 0 && v >= reinterpret_cast<T>(define)
+                && (v & reinterpret_cast<T>(define)) == reinterpret_cast<T>(define)))
             {
                 ss << (first ? "" : " | ") << str;
                 first = false;
