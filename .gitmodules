@@ -1,0 +1,3 @@
+[submodule "ABII-example-logging-plugin"]
+	path = ABII-example-logging-plugin
+	url = https://github.com/fredjt/ABII-example-logging-plugin
