@@ -80,4 +80,4 @@ install(EXPORT abiiTargets
         NAMESPACE abii::
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/abii)
 
-install(FILES template.S DESTINATION ${CMAKE_INSTALL_PREFIX}/share/abii)
+install(FILES template.S DESTINATION share/abii)
