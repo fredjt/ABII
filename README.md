@@ -7,11 +7,12 @@ This tool does nothing by itself; it requires a plugin for the library you want 
 
 ## Usage
 
-`abii <plugin> [--searchpath <searchpath>] <program> [<args>...]`
+`abii <plugin> <syms> [--searchpath <searchpath>] <program>...`
 
 `<plugin>` is the name of the plugin to load. This is usually the name of the library you want to intercept without
 the "lib" prefix and ".so" suffix, followed by a "-" and the plugin type (eg. ~~lib~~ c ~~.so~~ -logger -> c-logger for
 logging libc.so calls).
+`<syms>` is a comma-separated list of function names to intercept (eg. dlopen,dlsym,dlclose).
 
 #### Options:
 
