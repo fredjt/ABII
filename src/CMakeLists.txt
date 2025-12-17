@@ -79,3 +79,5 @@ install(EXPORT abiiTargets
         FILE abiiTargets.cmake
         NAMESPACE abii::
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/abii)
+
+install(FILES template.S DESTINATION ${CMAKE_INSTALL_PREFIX}/share/abii)

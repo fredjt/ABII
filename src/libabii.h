@@ -27,31 +27,31 @@
 #define TRACE_LOGGER
 #endif
 
-#define OVERRIDE_PREFIX(real_func) \
+#define OVERRIDE_PREFIX(func) \
     if (abii::redirect) \
     { \
         DISABLE_OVERRIDES \
         TRACE_LOGGER \
-        if ((real_func) == nullptr) \
+        if ((real_##func) == nullptr) \
         { \
-            (real_func) = (decltype(real_func)) dlsym(RTLD_NEXT, __func__); \
-            if ((real_func) == nullptr) \
+            (real_##func) = (decltype(real_##func)) get_real_symbol(#func, LIBRARY); \
+            if ((real_##func) == nullptr) \
                 std::cerr << "Error in `dlsym`: " << dlerror() << std::endl; \
         } \
         abii::prefix = ""; \
         const auto abii_args = new abii::ArgsPrinter();
 
-#define OVERRIDE_SUFFIX(real_func, ret) \
+#define OVERRIDE_SUFFIX(func, ret) \
         abii_args->print_args(); \
         abii::abii_stream << std::endl; \
         delete abii_args; \
         ENABLE_OVERRIDES \
         return ret; \
     } \
-    if ((real_func) == nullptr) \
+    if ((real_##func) == nullptr) \
     { \
-        (real_func) = (decltype(real_func)) dlsym(RTLD_NEXT, __func__); \
-        if ((real_func) == nullptr) \
+        (real_##func) = (decltype(real_##func)) get_real_symbol(#func, LIBRARY); \
+        if ((real_##func) == nullptr) \
             std::cerr << "Error in `dlsym`: " << dlerror() << std::endl; \
     }
 
@@ -71,7 +71,7 @@
         va_list abii_vargs; \
         const auto abii_bi_vargs = __builtin_apply_args();
 
-#define OVERRIDE_VARIADIC_SUFFIX(real_func, fmt) \
+#define OVERRIDE_VARIADIC_SUFFIX(func, fmt) \
         va_start(abii_vargs, fmt); \
         abii_args->print_args(); \
         va_end(abii_vargs); \
@@ -79,21 +79,21 @@
         ENABLE_OVERRIDES \
         __builtin_return(abii_ret); \
     } \
-    if ((real_func) == nullptr) \
+    if ((real_##func) == nullptr) \
     { \
-        (real_func) = (decltype(real_func)) dlsym(RTLD_NEXT, __func__); \
-        if ((real_func) == nullptr) \
+        (real_##func) = (decltype(real_##func)) get_real_symbol(#func, LIBRARY); \
+        if ((real_##func) == nullptr) \
             std::cerr << "Error in `dlsym`: " << dlerror() << std::endl; \
     } \
     const auto abii_bi_vargs = __builtin_apply_args();
 
-#define OVERRIDE_VALIST_PREFIX(real_func, fmt, valist) \
-    OVERRIDE_PREFIX(real_func) \
+#define OVERRIDE_VALIST_PREFIX(func, fmt, valist) \
+    OVERRIDE_PREFIX(func) \
         va_list abii_vargs; \
         va_copy(abii_vargs, valist);
 
-#define OVERRIDE_VALIST_SUFFIX(real_func, ret, fmt) \
-    OVERRIDE_SUFFIX(real_func, ret)
+#define OVERRIDE_VALIST_SUFFIX(func, ret, fmt) \
+    OVERRIDE_SUFFIX(func, ret)
 
 #define DUMP_VARIADIC_ARGS(str, fmt) \
     va_start(abii_vargs, fmt); \
@@ -163,7 +163,7 @@ inline std::ostream& operator<<(std::ostream& os, const _Float128& f)
 }
 #endif
 
-inline void* _get_real_symbol(const char* symbol_name)
+inline void* get_real_symbol(const char* symbol_name, const char* library)
 {
     std::ifstream maps("/proc/self/maps");
     if (!maps.is_open())
@@ -177,7 +177,7 @@ inline void* _get_real_symbol(const char* symbol_name)
 
     while (std::getline(maps, line))
     {
-        if (auto pos = line.find("libc.so"); pos != std::string::npos)
+        if (auto pos = line.find(library); pos != std::string::npos)
         {
             std::istringstream iss(line);
             std::string path;

@@ -2,6 +2,7 @@
 // Created by Trent Tanchin on 12/9/25.
 //
 
+#include <filesystem>
 #include <stdexcept>
 #include <string>
 #include <unistd.h>
@@ -33,11 +34,11 @@ void abii_init()
     abii_stream = std::ofstream(get_logfname(), std::ios::app);
     if (!abii_stream.is_open())
         throw std::runtime_error("Could not open " + get_logfname());
-#ifndef BIT32
-    abii_stream << "Loading 64-bit ABII in process: " << getpid() << " thread: " << gettid() << "..."
+#ifdef BIT32
+    abii_stream << "Loading 32-bit ABII in process: " << getpid() << " thread: " << gettid() << "..."
         << std::endl << std::endl;
 #else
-    abii_stream << "Loading 32-bit ABII in process: " << getpid() << " thread: " << gettid() << "..."
+    abii_stream << "Loading 64-bit ABII in process: " << getpid() << " thread: " << gettid() << "..."
         << std::endl << std::endl;
 #endif
     ENABLE_OVERRIDES
