@@ -352,7 +352,7 @@ std::string print_enum_entry(const T v, const defines_maps&... maps)
     auto search_in_map = [&](const auto& defines)
     {
         for (const auto& [define, str] : defines)
-            if (v == reinterpret_cast<T>(define))
+            if (v == static_cast<T>(define))
             {
                 ss << (first ? "" : " & ") << str;
                 first = false;
@@ -375,7 +375,7 @@ std::string print_enum_entry(const char* v, const defines_maps&... maps)
     auto search_in_map = [&](const auto& defines)
     {
         for (const auto& [define, str] : defines)
-            if (strcmp(v, reinterpret_cast<const char*>(define)) == 0)
+            if (strcmp(v, static_cast<const char*>(define)) == 0)
             {
                 ss << (first ? "" : " & ") << str;
                 first = false;
