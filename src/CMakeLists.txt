@@ -8,15 +8,17 @@ add_library(utils STATIC
             libabii.cpp libabii.h
             utils.h)
 
-set(public_headers
-    ArgPrinter.tpp
-    ArgPrinterArray.tpp
-    ArgPrinterFunction.tpp
-    ArgPrinterPointer.tpp
-    libabii.h
-    Logger.h
-    utils.h)
-set_target_properties(utils PROPERTIES PUBLIC_HEADER "${public_headers}")
+if (NOT BIT32)
+	set(public_headers
+	    ArgPrinter.tpp
+	    ArgPrinterArray.tpp
+	    ArgPrinterFunction.tpp
+	    ArgPrinterPointer.tpp
+	    libabii.h
+	    Logger.h
+	    utils.h)
+	set_target_properties(utils PROPERTIES PUBLIC_HEADER "${public_headers}")
+endif ()
 
 find_package(ICU COMPONENTS i18n uc)
 
@@ -38,19 +40,18 @@ if (BIT32)
 	target_compile_definitions(utils PUBLIC "BIT32")
 endif ()
 
-
 add_library(libabii INTERFACE)
 
 target_link_libraries(libabii INTERFACE
                       utils
 
-                      "LINKER:--whole-archive"
+                      $<$<LINK_LANGUAGE:CXX>:-Wl,--whole-archive>
                       abiinterceptor
-                      "LINKER:--no-whole-archive"
+                      $<$<LINK_LANGUAGE:CXX>:-Wl,--no-whole-archive>
 
-                      "LINKER:--start-group"
+                      $<$<LINK_LANGUAGE:CXX>:-Wl,--start-group>
                       ICU::uc ICU::i18n
-                      "LINKER:--end-group")
+                      $<$<LINK_LANGUAGE:CXX>:-Wl,--end-group>)
 
 add_library(abii::abii ALIAS libabii)
 
@@ -65,10 +66,16 @@ configure_package_config_file(
 		"${CMAKE_CURRENT_BINARY_DIR}/abiiConfig.cmake"
 		INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/abii)
 
-install(TARGETS utils abiinterceptor libabii
-        EXPORT abiiTargets
-		ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-		PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+if (BIT32)
+	install(TARGETS utils abiinterceptor libabii
+	        EXPORT abiiTargets
+	        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
+else ()
+	install(TARGETS utils abiinterceptor libabii
+	        EXPORT abiiTargets
+	        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+	        PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+endif ()
 
 install(FILES
         "${CMAKE_CURRENT_BINARY_DIR}/abiiConfig.cmake"
@@ -80,4 +87,6 @@ install(EXPORT abiiTargets
         NAMESPACE abii::
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/abii)
 
-install(FILES template.S DESTINATION share/abii)
+if (NOT BIT32)
+	install(FILES template.S DESTINATION share/abii)
+endif ()

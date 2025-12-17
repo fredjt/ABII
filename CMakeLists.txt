@@ -31,7 +31,11 @@ if (BUILD_TESTS)
 endif ()
 
 # CPack setup
-set(CPACK_PACKAGE_NAME "abii")
+if (BIT32)
+	set(CPACK_PACKAGE_NAME "abii-32")
+else ()
+	set(CPACK_PACKAGE_NAME "abii")
+endif ()
 set(CPACK_PACKAGE_VENDOR "Trent Tanchin")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "ABII - Application Binary Interface Interceptor")
 set(CPACK_PACKAGE_VERSION_MAJOR "${PROJECT_VERSION_MAJOR}")
