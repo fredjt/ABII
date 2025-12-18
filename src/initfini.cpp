@@ -41,6 +41,9 @@ void abii_init()
     abii_stream << "Loading 64-bit ABII in process: " << getpid() << " thread: " << gettid() << "..."
         << std::endl << std::endl;
 #endif
+
+    const std::ifstream maps("/proc/self/maps");
+    abii_stream << maps.rdbuf() << std::endl;
     ENABLE_OVERRIDES
 }
 
