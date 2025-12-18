@@ -227,7 +227,8 @@ bool bomb_detector(T* ptr, size_t size = 0)
     const int flags = fcntl(pipefds[1], F_GETFL, 0);
     fcntl(pipefds[1], F_SETFL, flags | O_NONBLOCK);
 
-    const ssize_t nbytes = write(pipefds[1], reinterpret_cast<const void*>(ptr), size != 0 ? size : sizeof(T));
+    const ssize_t nbytes = write(pipefds[1], const_cast<void*>(reinterpret_cast<const volatile void*>(ptr)),
+                                 size != 0 ? size : sizeof(T));
 
     close(pipefds[0]);
     close(pipefds[1]);
@@ -333,12 +334,12 @@ std::string get_type([[maybe_unused]] const T& i) requires (std::is_const_v<T> &
     return demangle(typeid(i).name());
 }
 
-inline std::string get_symbol_name(const void* ptr)
+inline std::string get_symbol_name(const volatile void* ptr)
 {
     if (ptr == nullptr)
         return "";
     Dl_info info;
-    if (dladdr(ptr, &info) && info.dli_sname != nullptr && info.dli_saddr != nullptr)
+    if (dladdr(const_cast<const void*>(ptr), &info) && info.dli_sname != nullptr && info.dli_saddr != nullptr)
         return demangle(info.dli_sname);
     return "";
 }

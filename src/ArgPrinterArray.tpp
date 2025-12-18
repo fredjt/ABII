@@ -40,14 +40,14 @@ struct ArgPrinter<T[N]>final : VirtArgPrinter
     void set_fmt(const std::string& fmt) { fmt_ = fmt; }
 
     template <typename V>
-    [[nodiscard]] std::string enum_printer(V& arg) const
+    [[nodiscard]] std::string enum_printer(const V& arg) const
     {
         return enum_printers_.contains(depth_)
                    ? enum_printers_.find(depth_)->second(static_cast<const void*>(&arg))
                    : "";
     }
 
-    [[nodiscard]] std::function<std::string(void*)> get_enum_printer() const
+    [[nodiscard]] std::function<std::string(const void*)> get_enum_printer() const
     {
         return enum_printers_.contains(depth_) ? enum_printers_.find(depth_)->second : nullptr;
     }
@@ -56,7 +56,7 @@ struct ArgPrinter<T[N]>final : VirtArgPrinter
     void set_enum_printer_(const std::function<std::string(V)>& enum_printer, size_t depth = 0)
     {
         enum_printers_.insert({
-            depth, [enum_printer](const void* arg) -> std::string { return enum_printer(*static_cast<const V*>(arg)); }
+            depth, [enum_printer](const void* arg) -> std::string { return enum_printer(*static_cast<V*>(arg)); }
         });
     }
 
@@ -107,7 +107,7 @@ struct ArgPrinter<T[N]>final : VirtArgPrinter
 
 private:
     T (&arg_)[N];
-    T rval_arg_[N];
+    T rval_arg_[N] = {};
     std::string name_{};
     ReferenceType* len_ = new Reference(def_len_);
     std::string fmt_{};
@@ -152,14 +152,14 @@ struct ArgPrinter<__locale_data* const[N]>final : VirtArgPrinter
     void set_len(V& len) { len_ = new Reference<V>(len); }
 
     template <typename V>
-    [[nodiscard]] std::string enum_printer(V& arg) const
+    [[nodiscard]] std::string enum_printer(const V& arg) const
     {
         return enum_printers_.contains(depth_)
                    ? enum_printers_.find(depth_)->second(static_cast<const void*>(&arg))
                    : "";
     }
 
-    [[nodiscard]] std::function<std::string(void*)> get_enum_printer() const
+    [[nodiscard]] std::function<std::string(const void*)> get_enum_printer() const
     {
         return enum_printers_.contains(depth_) ? enum_printers_.find(depth_)->second : nullptr;
     }
@@ -168,7 +168,7 @@ struct ArgPrinter<__locale_data* const[N]>final : VirtArgPrinter
     void set_enum_printer_(const std::function<std::string(V)>& enum_printer, size_t depth = 0)
     {
         enum_printers_.insert({
-            depth, [enum_printer](const void* arg) -> std::string { return enum_printer(*static_cast<const V*>(arg)); }
+            depth, [enum_printer](const void* arg) -> std::string { return enum_printer(*static_cast<V*>(arg)); }
         });
     }
 
@@ -196,7 +196,7 @@ struct ArgPrinter<__locale_data* const[N]>final : VirtArgPrinter
 
 private:
     __locale_data* const (&arg_)[N];
-    __locale_data* const rval_arg_[N] = nullptr;
+    __locale_data* const rval_arg_[N] = {};
     std::string name_;
     ReferenceType* len_ = new Reference(def_len_);
     std::map<size_t, std::function<std::string(const void*)>> enum_printers_;
@@ -238,14 +238,14 @@ struct ArgPrinter<const T[N]>final : VirtArgPrinter
     void set_len(V& len) { len_ = new Reference<V>(len); }
 
     template <typename V>
-    [[nodiscard]] std::string enum_printer(V& arg) const
+    [[nodiscard]] std::string enum_printer(const V& arg) const
     {
         return enum_printers_.contains(depth_)
                    ? enum_printers_.find(depth_)->second(static_cast<const void*>(&arg))
                    : "";
     }
 
-    [[nodiscard]] std::function<std::string(void*)> get_enum_printer() const
+    [[nodiscard]] std::function<std::string(const void*)> get_enum_printer() const
     {
         return enum_printers_.contains(depth_) ? enum_printers_.find(depth_)->second : nullptr;
     }
@@ -282,7 +282,7 @@ struct ArgPrinter<const T[N]>final : VirtArgPrinter
 
 private:
     const T (&arg_)[N];
-    const T rval_arg_[N];
+    const T rval_arg_[N] = {};
     std::string name_;
     ReferenceType* len_ = new Reference(def_len_);
     std::map<size_t, std::function<std::string(const void*)>> enum_printers_;
@@ -323,14 +323,14 @@ struct ArgPrinter<T[0]>final : VirtArgPrinter
     void set_len(V& len) { len_ = new Reference<V>(len); }
 
     template <typename V>
-    [[nodiscard]] std::string enum_printer(V& arg) const
+    [[nodiscard]] std::string enum_printer(const V& arg) const
     {
         return enum_printers_.contains(depth_)
                    ? enum_printers_.find(depth_)->second(static_cast<const void*>(&arg))
                    : "";
     }
 
-    [[nodiscard]] std::function<std::string(void*)> get_enum_printer() const
+    [[nodiscard]] std::function<std::string(const void*)> get_enum_printer() const
     {
         return enum_printers_.contains(depth_) ? enum_printers_.find(depth_)->second : nullptr;
     }
@@ -365,7 +365,7 @@ struct ArgPrinter<T[0]>final : VirtArgPrinter
 
 private:
     T (&arg_)[0];
-    T rval_arg_[0];
+    T rval_arg_[0] = {};
     std::string name_;
     ReferenceType* len_ = new Reference(def_len_);
     std::map<size_t, std::function<std::string(const void*)>> enum_printers_;
@@ -405,14 +405,14 @@ struct ArgPrinter<const T[0]>final : VirtArgPrinter
     void set_len(V& len) { len_ = new Reference<V>(len); }
 
     template <typename V>
-    [[nodiscard]] std::string enum_printer(V& arg) const
+    [[nodiscard]] std::string enum_printer(const V& arg) const
     {
         return enum_printers_.contains(depth_)
                    ? enum_printers_.find(depth_)->second(static_cast<const void*>(&arg))
                    : "";
     }
 
-    [[nodiscard]] std::function<std::string(void*)> get_enum_printer() const
+    [[nodiscard]] std::function<std::string(const void*)> get_enum_printer() const
     {
         return enum_printers_.contains(depth_) ? enum_printers_.find(depth_)->second : nullptr;
     }
@@ -447,7 +447,7 @@ struct ArgPrinter<const T[0]>final : VirtArgPrinter
 
 private:
     const T (&arg_)[0];
-    const T rval_arg_[0];
+    const T rval_arg_[0] = {};
     std::string name_;
     ReferenceType* len_ = new Reference(def_len_);
     std::map<size_t, std::function<std::string(const void*)>> enum_printers_;
@@ -483,11 +483,11 @@ void ArgPrinter<T[N]>::print_arg()
         *os_ << std::endl;
         const auto old_prefix = prefix;
         prefix += "\t";
-        if (std::ranges::find(used_addrs, static_cast<uintptr_t>(arg_)) != used_addrs.end())
+        if (std::ranges::find(used_addrs, reinterpret_cast<uintptr_t>(arg_)) != used_addrs.end())
             *os_ << prefix << "[RECURSION]";
         else
         {
-            used_addrs.push_back(static_cast<uintptr_t>(arg_));
+            used_addrs.push_back(reinterpret_cast<uintptr_t>(arg_));
             for (auto i = 0; i < N; ++i)
             {
                 std::stringstream ss;
@@ -551,11 +551,11 @@ void ArgPrinter<const T[N]>::print_arg()
         *os_ << std::endl;
         const auto old_prefix = prefix;
         prefix += "\t";
-        if (std::ranges::find(used_addrs, static_cast<uintptr_t>(arg_)) != used_addrs.end())
+        if (std::ranges::find(used_addrs, reinterpret_cast<uintptr_t>(arg_)) != used_addrs.end())
             *os_ << prefix << "[RECURSION]";
         else
         {
-            used_addrs.push_back(static_cast<uintptr_t>(arg_));
+            used_addrs.push_back(reinterpret_cast<uintptr_t>(arg_));
             for (auto i = 0; i < N; ++i)
             {
                 std::stringstream ss;
@@ -587,11 +587,11 @@ void ArgPrinter<__locale_data* const[N]>::print_arg()
         *os_ << std::endl;
         const auto old_prefix = prefix;
         prefix += "\t";
-        if (std::ranges::find(used_addrs, static_cast<uintptr_t>(arg_)) != used_addrs.end())
+        if (std::ranges::find(used_addrs, reinterpret_cast<uintptr_t>(arg_)) != used_addrs.end())
             *os_ << prefix << "[RECURSION]";
         else
         {
-            used_addrs.push_back(static_cast<uintptr_t>(arg_));
+            used_addrs.push_back(reinterpret_cast<uintptr_t>(arg_));
             for (auto i = 0; i < N; ++i)
             {
                 std::stringstream ss;

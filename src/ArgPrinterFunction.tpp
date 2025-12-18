@@ -31,14 +31,14 @@ struct ArgPrinter<Ret(*)(Args...)>final : VirtArgPrinter
     void set_name(const std::string& name) override { name_ = name; }
 
     template <typename V>
-    [[nodiscard]] std::string enum_printer(V& arg) const
+    [[nodiscard]] std::string enum_printer(const V& arg) const
     {
         return enum_printers_.contains(depth_)
                    ? enum_printers_.find(depth_)->second(static_cast<const void*>(&arg))
                    : "";
     }
 
-    [[nodiscard]] std::function<std::string(void*)> get_enum_printer() const
+    [[nodiscard]] std::function<std::string(const void*)> get_enum_printer() const
     {
         return enum_printers_.contains(depth_) ? enum_printers_.find(depth_)->second : nullptr;
     }
@@ -105,14 +105,14 @@ struct ArgPrinter<Ret(* const)(Args...)>final : VirtArgPrinter
     void set_name(const std::string& name) override { name_ = name; }
 
     template <typename V>
-    [[nodiscard]] std::string enum_printer(V& arg) const
+    [[nodiscard]] std::string enum_printer(const V& arg) const
     {
         return enum_printers_.contains(depth_)
                    ? enum_printers_.find(depth_)->second(static_cast<const void*>(&arg))
                    : "";
     }
 
-    [[nodiscard]] std::function<std::string(void*)> get_enum_printer() const
+    [[nodiscard]] std::function<std::string(const void*)> get_enum_printer() const
     {
         return enum_printers_.contains(depth_) ? enum_printers_.find(depth_)->second : nullptr;
     }
@@ -161,10 +161,10 @@ private:
 template <typename Ret, typename... Args>
 void ArgPrinter<Ret(*)(Args...)>::print_arg()
 {
-    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<void*>(arg_);
+    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << reinterpret_cast<void*>(arg_);
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
-    if (const auto name = get_symbol_name(static_cast<void*>(arg_)); !name.empty())
+    if (const auto name = get_symbol_name(reinterpret_cast<void*>(arg_)); !name.empty())
         *os_ << " (" << name << ")";
     if (print_endl_)
         *os_ << std::endl;
@@ -176,10 +176,10 @@ void ArgPrinter<Ret(*)(Args...)>::print_arg()
 template <typename Ret, typename... Args>
 void ArgPrinter<Ret(* const)(Args...)>::print_arg()
 {
-    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<void*>(arg_);
+    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << reinterpret_cast<void*>(arg_);
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
-    if (const auto name = get_symbol_name(static_cast<void*>(arg_)); !name.empty())
+    if (const auto name = get_symbol_name(reinterpret_cast<void*>(arg_)); !name.empty())
         *os_ << " (" << name << ")";
     if (print_endl_)
         *os_ << std::endl;

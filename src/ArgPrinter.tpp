@@ -40,14 +40,14 @@ struct ArgPrinter final : VirtArgPrinter
     void set_name(const std::string& name) override { name_ = name; }
 
     template <typename V>
-    [[nodiscard]] std::string enum_printer(V& arg) const
+    [[nodiscard]] std::string enum_printer(const V& arg) const
     {
         return enum_printers_.contains(depth_)
                    ? enum_printers_.find(depth_)->second(static_cast<const void*>(&arg))
                    : "";
     }
 
-    [[nodiscard]] std::function<std::string(void*)> get_enum_printer() const
+    [[nodiscard]] std::function<std::string(const void*)> get_enum_printer() const
     {
         return enum_printers_.contains(depth_) ? enum_printers_.find(depth_)->second : nullptr;
     }
@@ -114,14 +114,14 @@ struct ArgPrinter<const T>final : VirtArgPrinter
     void set_name(const std::string& name) override { name_ = name; }
 
     template <typename V>
-    [[nodiscard]] std::string enum_printer(V& arg) const
+    [[nodiscard]] std::string enum_printer(const V& arg) const
     {
         return enum_printers_.contains(depth_)
                    ? enum_printers_.find(depth_)->second(static_cast<const void*>(&arg))
                    : "";
     }
 
-    [[nodiscard]] std::function<std::string(void*)> get_enum_printer() const
+    [[nodiscard]] std::function<std::string(const void*)> get_enum_printer() const
     {
         return enum_printers_.contains(depth_) ? enum_printers_.find(depth_)->second : nullptr;
     }
@@ -161,6 +161,164 @@ private:
     const T rval_arg_ = arg_;
     std::string name_;
     std::map<size_t, std::function<std::string(const void*)>> enum_printers_;
+    size_t depth_ = 0;
+    bool print_endl_ = true;
+    std::ostream* os_;
+};
+
+/**
+ * Template specialization of template class ArgPrinter for volatile-qualified types
+ *
+ * @tparam T Type of object to be printed
+ *
+ * @struct ArgPrinter libabii.h
+ */
+template <typename T>
+struct ArgPrinter<volatile T>final : VirtArgPrinter
+{
+    explicit ArgPrinter(volatile T& arg, const std::string& name = "", std::ostream* os = &abii_stream,
+                        const int flags = 1) : arg_(arg), name_(name), print_endl_(flags & PRINT_ENDL), os_(os) {}
+
+    explicit ArgPrinter(volatile T&& arg, const std::string& name = "", std::ostream* os = &abii_stream,
+                        const int flags = 1) : arg_(rval_arg_), rval_arg_(arg), name_(name),
+                                               print_endl_(flags & PRINT_ENDL), os_(os) {}
+
+    ~ArgPrinter() override = default;
+
+    [[nodiscard]] std::string get_name() const override { return name_; }
+    void set_name(const std::string& name) override { name_ = name; }
+
+    template <typename V>
+    [[nodiscard]] std::string enum_printer(const volatile V& arg) const
+    {
+        return enum_printers_.contains(depth_)
+                   ? enum_printers_.find(depth_)->second(static_cast<const volatile void*>(&arg))
+                   : "";
+    }
+
+    [[nodiscard]] std::function<std::string(const volatile void*)> get_enum_printer() const
+    {
+        return enum_printers_.contains(depth_) ? enum_printers_.find(depth_)->second : nullptr;
+    }
+
+    template <typename V>
+    void set_enum_printer_(const std::function<std::string(V)>& enum_printer, size_t depth = 0)
+    {
+        enum_printers_.insert({
+            depth,
+            [enum_printer](const volatile void* arg) -> std::string
+            {
+                return enum_printer(*static_cast<const volatile V*>(arg));
+            }
+        });
+    }
+
+    [[nodiscard]] bool get_print_endl() const override { return print_endl_; }
+    void set_print_endl(const bool print_endl) override { print_endl_ = print_endl; }
+    [[nodiscard]] std::ostream* get_os() const override { return os_; }
+    void set_os(std::ostream* os) override { os_ = os; }
+
+    [[nodiscard]] std::string get_value() const override
+    {
+        std::stringstream ss;
+        ss << reinterpret_cast<T>(arg_);
+        return ss.str();
+    }
+
+    void print_arg() override;
+
+    // internal usage
+    ArgPrinter(volatile T& arg, const std::string& name, const size_t previous_depth,
+               const std::map<size_t, std::function<std::string(const volatile void*)>>& enum_printers,
+               std::ostream* os = &abii_stream, const int flags = 1) : arg_(arg), name_(name),
+                                                                       enum_printers_(enum_printers),
+                                                                       depth_(previous_depth + 1),
+                                                                       print_endl_(flags & PRINT_ENDL), os_(os) {}
+
+private:
+    volatile T& arg_;
+    volatile T rval_arg_ = arg_;
+    std::string name_;
+    std::map<size_t, std::function<std::string(const volatile void*)>> enum_printers_;
+    size_t depth_ = 0;
+    bool print_endl_ = true;
+    std::ostream* os_;
+};
+
+/**
+ * Template specialization of template class ArgPrinter for const-volatile-qualified types
+ *
+ * @tparam T Type of object to be printed
+ *
+ * @struct ArgPrinter libabii.h
+ */
+template <typename T>
+struct ArgPrinter<const volatile T>final : VirtArgPrinter
+{
+    explicit ArgPrinter(const volatile T& arg, const std::string& name = "", std::ostream* os = &abii_stream,
+                        const int flags = 1) : arg_(arg), name_(name), print_endl_(flags & PRINT_ENDL), os_(os) {}
+
+    explicit ArgPrinter(const volatile T&& arg, const std::string& name = "", std::ostream* os = &abii_stream,
+                        const int flags = 1) : arg_(rval_arg_), rval_arg_(arg), name_(name),
+                                               print_endl_(flags & PRINT_ENDL), os_(os) {}
+
+    ~ArgPrinter() override = default;
+
+    [[nodiscard]] std::string get_name() const override { return name_; }
+    void set_name(const std::string& name) override { name_ = name; }
+
+    template <typename V>
+    [[nodiscard]] std::string enum_printer(const volatile V& arg) const
+    {
+        return enum_printers_.contains(depth_)
+                   ? enum_printers_.find(depth_)->second(static_cast<const volatile void*>(&arg))
+                   : "";
+    }
+
+    [[nodiscard]] std::function<std::string(const volatile void*)> get_enum_printer() const
+    {
+        return enum_printers_.contains(depth_) ? enum_printers_.find(depth_)->second : nullptr;
+    }
+
+    template <typename V>
+    void set_enum_printer_(const std::function<std::string(V)>& enum_printer, size_t depth = 0)
+    {
+        enum_printers_.insert({
+            depth,
+            [enum_printer](const volatile void* arg) -> std::string
+            {
+                return enum_printer(*static_cast<const volatile V*>(arg));
+            }
+        });
+    }
+
+    [[nodiscard]] bool get_print_endl() const override { return print_endl_; }
+    void set_print_endl(const bool print_endl) override { print_endl_ = print_endl; }
+    [[nodiscard]] std::ostream* get_os() const override { return os_; }
+    void set_os(std::ostream* os) override { os_ = os; }
+
+    [[nodiscard]] std::string get_value() const override
+    {
+        std::stringstream ss;
+        ss << reinterpret_cast<const T>(arg_);
+        return ss.str();
+    }
+
+    void print_arg() override;
+
+    // internal usage
+    ArgPrinter(const volatile T& arg, const std::string& name, const size_t previous_depth,
+               const std::map<size_t, std::function<std::string(const volatile void*)>>& enum_printers,
+               std::ostream* os = &abii_stream, const int flags = 1) : arg_(arg), name_(name),
+                                                                       enum_printers_(enum_printers),
+                                                                       depth_(previous_depth + 1),
+                                                                       print_endl_(flags & PRINT_ENDL), os_(os) {}
+
+private:
+    const volatile T& arg_;
+    const volatile T rval_arg_ = arg_;
+    std::string name_;
+    std::map<size_t, std::function<std::string(const volatile void*)>> enum_printers_;
     size_t depth_ = 0;
     bool print_endl_ = true;
     std::ostream* os_;
@@ -324,6 +482,162 @@ inline void ArgPrinter<const wchar_t>::print_arg()
  */
 template <>
 inline void ArgPrinter<const unsigned char>::print_arg()
+{
+    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<unsigned int>(arg_);
+    if (enum_printers_.contains(depth_))
+        *os_ << " [" << enum_printer(arg_) << "]";
+    if (arg_ == 8)
+        *os_ << " {BS}";
+    else if (arg_ == '\n')
+        *os_ << " {\\n}";
+    else
+        *os_ << " {" << arg_ << "}";
+
+    if (print_endl_)
+        *os_ << std::endl;
+}
+
+/**
+ * ArgPrinter<volatile T>::print_arg() - Prints an object's contents to @code *stream @endcode
+ *
+ * @tparam T The type of the object to be printed
+ */
+template <typename T>
+void ArgPrinter<volatile T>::print_arg()
+{
+    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << arg_;
+    if (enum_printers_.contains(depth_))
+        *os_ << " [" << enum_printer(arg_) << "]";
+
+    if (print_endl_)
+        *os_ << std::endl;
+}
+
+/**
+ * ArgPrinter<char>::print_arg() - Prints a char and a string representation of the char to @code *stream @endcode
+ */
+template <>
+inline void ArgPrinter<volatile char>::print_arg()
+{
+    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<unsigned int>(static_cast<unsigned char>(
+        arg_));
+    if (enum_printers_.contains(depth_))
+        *os_ << " [" << enum_printer(arg_) << "]";
+    if (arg_ == 8)
+        *os_ << " {BS}";
+    else if (arg_ == '\n')
+        *os_ << " {\\n}";
+    else
+        *os_ << " {" << arg_ << "}";
+
+    if (print_endl_)
+        *os_ << std::endl;
+}
+
+/**
+ * ArgPrinter<char>::print_arg() - Prints a char and a string representation of the char to @code *stream @endcode
+ */
+template <>
+inline void ArgPrinter<volatile wchar_t>::print_arg()
+{
+    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<unsigned int>(static_cast<unsigned char>(
+        arg_));
+    if (enum_printers_.contains(depth_))
+        *os_ << " [" << enum_printer(arg_) << "]";
+    if (arg_ == 8)
+        *os_ << " {BS}";
+    else if (arg_ == '\n')
+        *os_ << " {\\n}";
+    else
+        *os_ << " {" << static_cast<const wchar_t>(arg_) << "}";
+
+    if (print_endl_)
+        *os_ << std::endl;
+}
+
+/**
+ * ArgPrinter<char>::print_arg() - Prints an unsigned char and a string representation of the unsigned char to @code *stream @endcode
+ */
+template <>
+inline void ArgPrinter<volatile unsigned char>::print_arg()
+{
+    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<unsigned int>(arg_);
+    if (enum_printers_.contains(depth_))
+        *os_ << " [" << enum_printer(arg_) << "]";
+    if (arg_ == 8)
+        *os_ << " {BS}";
+    else if (arg_ == '\n')
+        *os_ << " {\\n}";
+    else
+        *os_ << " {" << arg_ << "}";
+
+    if (print_endl_)
+        *os_ << std::endl;
+}
+
+/**
+ * ArgPrinter<const volatile T>::print_arg() - Prints an object's contents to @code *stream @endcode
+ *
+ * @tparam T The type of the object to be printed
+ */
+template <typename T>
+void ArgPrinter<const volatile T>::print_arg()
+{
+    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << arg_;
+    if (enum_printers_.contains(depth_))
+        *os_ << " [" << enum_printer(arg_) << "]";
+
+    if (print_endl_)
+        *os_ << std::endl;
+}
+
+/**
+ * ArgPrinter<char>::print_arg() - Prints a char and a string representation of the char to @code *stream @endcode
+ */
+template <>
+inline void ArgPrinter<const volatile char>::print_arg()
+{
+    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<unsigned int>(static_cast<unsigned char>(
+        arg_));
+    if (enum_printers_.contains(depth_))
+        *os_ << " [" << enum_printer(arg_) << "]";
+    if (arg_ == 8)
+        *os_ << " {BS}";
+    else if (arg_ == '\n')
+        *os_ << " {\\n}";
+    else
+        *os_ << " {" << arg_ << "}";
+
+    if (print_endl_)
+        *os_ << std::endl;
+}
+
+/**
+ * ArgPrinter<char>::print_arg() - Prints a char and a string representation of the char to @code *stream @endcode
+ */
+template <>
+inline void ArgPrinter<const volatile wchar_t>::print_arg()
+{
+    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<unsigned int>(static_cast<unsigned char>(
+        arg_));
+    if (enum_printers_.contains(depth_))
+        *os_ << " [" << enum_printer(arg_) << "]";
+    if (arg_ == 8)
+        *os_ << " {BS}";
+    else if (arg_ == '\n')
+        *os_ << " {\\n}";
+    else
+        *os_ << " {" << static_cast<const wchar_t>(arg_) << "}";
+
+    if (print_endl_)
+        *os_ << std::endl;
+}
+
+/**
+ * ArgPrinter<char>::print_arg() - Prints an unsigned char and a string representation of the unsigned char to @code *stream @endcode
+ */
+template <>
+inline void ArgPrinter<const volatile unsigned char>::print_arg()
 {
     *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<unsigned int>(arg_);
     if (enum_printers_.contains(depth_))
