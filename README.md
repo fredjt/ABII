@@ -3,7 +3,8 @@
 ABII is a powerful tool designed to intercept and manipulate application binary interfaces (ABIs) at runtime. It allows
 users to monitor, modify, and analyze the behavior of applications by intercepting C function calls to shared libraries.
 
-This tool does nothing by itself; it requires a plugin for the library you want to intercept.
+This tool does nothing by itself; it requires a plugin for the library you want to intercept. \
+It does come with an example plugin for testing and as a base for making your own.
 
 ## Usage
 
@@ -26,7 +27,7 @@ locations.
 
 ## Current Plugins
 
-- Coming soon!
+- example-logger: An example plugin to showcase logging function calls.
 
 ## In-Development
 
