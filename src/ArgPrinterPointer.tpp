@@ -198,7 +198,7 @@ struct ArgPrinter<volatile T*>final : VirtArgPrinter
     [[nodiscard]] std::string get_value() const override
     {
         std::stringstream ss;
-        ss << static_cast<const void*>(arg_);
+        ss << static_cast<const volatile void*>(arg_);
         return ss.str();
     }
 
