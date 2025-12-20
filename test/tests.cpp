@@ -7,8 +7,6 @@
 #include <libabii.h>
 #include <boost/test/included/unit_test.hpp>
 
-#include "custom_printers.h"
-
 #define TEST_TYPE(type, init_val)                               \
 {                                                               \
     const auto pi_args = new abii::ArgsPrinter();               \
@@ -66,7 +64,6 @@ const char* va_func(const char* fmt, ...)
     va_start(abii_vargs, fmt);
     auto (printer) = new abii::ArgPrinter(abii_vargs, "...", &std::cout);
     printer->set_fmt(fmt);
-    printer->set_va_list_printer(abii::print_variadic_args_printf);
     abii_args->push_arg(printer);
     va_end(abii_vargs);
 

@@ -6,6 +6,7 @@
 #define LIBABII_H
 
 #include <algorithm>
+#include <cstdarg>
 #include <cstring>
 #include <cxxabi.h>
 #include <dlfcn.h>
