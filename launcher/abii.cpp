@@ -88,7 +88,7 @@ int get_elf_class(const char* lib_path)
 int main(const int argc, char** argv)
 {
     std::map<std::string, docopt::value> args =
-        docopt::docopt(HELP, {argv + 1, argv + argc}, true, "ABII v0.0.1");
+        docopt::docopt(HELP, {argv + 1, argv + argc}, true, "ABII " PROJECT_VERSION);
 
     std::vector<const char*> launch_args;
     for (const auto& arg : args["<program>"].asStringList())
@@ -136,9 +136,9 @@ int main(const int argc, char** argv)
                 break;
             }
         }
-            if (plugin_path == "")
-                throw std::runtime_error(
-                    "ERROR: Cannot find " + arch + "-bit lib" + args["<plugin>"].asString() + ".so to link with!");
+        if (plugin_path == "")
+            throw std::runtime_error(
+                "ERROR: Cannot find " + arch + "-bit lib" + args["<plugin>"].asString() + ".so to link with!");
 
         std::string tmpdir = TMPDIR + arch + "/";
         mkdir(tmpdir.c_str(), 0700);
