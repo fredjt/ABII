@@ -35,7 +35,6 @@
         TRACE_LOGGER \
         if ((real_##func) == nullptr) \
         { \
-            /* (real_##func) = (decltype(real_##func)) get_real_symbol(#func, LIBRARY); */ \
             (real_##func) = (decltype(real_##func)) dlsym(RTLD_NEXT, #func); \
             if ((real_##func) == nullptr) \
                 std::cerr << "Error in `dlsym`: " << dlerror() << std::endl; \
@@ -52,7 +51,6 @@
     } \
     if ((real_##func) == nullptr) \
     { \
-        /* (real_##func) = (decltype(real_##func)) get_real_symbol(#func, LIBRARY); */ \
         (real_##func) = (decltype(real_##func)) dlsym(RTLD_NEXT, #func); \
         if ((real_##func) == nullptr) \
             std::cerr << "Error in `dlsym`: " << dlerror() << std::endl; \
@@ -74,17 +72,16 @@
         va_list abii_vargs; \
         const auto abii_bi_vargs = __builtin_apply_args();
 
-#define OVERRIDE_VARIADIC_SUFFIX(func, fmt) \
+#define OVERRIDE_VARIADIC_SUFFIX(func, ret, fmt) \
         va_start(abii_vargs, fmt); \
         abii_args->print_args(); \
         va_end(abii_vargs); \
         abii::abii_stream << std::endl; \
         ENABLE_OVERRIDES \
-        __builtin_return(abii_ret); \
+        __builtin_return(ret); \
     } \
     if ((real_##func) == nullptr) \
     { \
-        /* (real_##func) = (decltype(real_##func)) get_real_symbol(#func, LIBRARY); */ \
         (real_##func) = (decltype(real_##func)) dlsym(RTLD_NEXT, #func); \
         if ((real_##func) == nullptr) \
             std::cerr << "Error in `dlsym`: " << dlerror() << std::endl; \
@@ -354,7 +351,7 @@ std::string print_enum_entry(const T v, const defines_maps&... maps)
     auto search_in_map = [&](const auto& defines)
     {
         for (const auto& [define, str] : defines)
-            if (v == static_cast<T>(define))
+            if (v == static_cast<const T>(define))
             {
                 ss << (first ? "" : " & ") << str;
                 first = false;
@@ -400,8 +397,8 @@ std::string print_or_enum_entries(const T v, const defines_maps&... maps)
     auto search_in_map = [&](const auto& defines)
     {
         for (const auto& [define, str] : defines)
-            if (v == static_cast<T>(define) || (static_cast<T>(define) > 0 && v >= static_cast<T>(define) &&
-                (v & static_cast<T>(define)) == static_cast<T>(define)))
+            if (v == static_cast<const T>(define) || (static_cast<const T>(define) > 0 && v >= static_cast<const T>(define) &&
+                (v & static_cast<const T>(define)) == static_cast<const T>(define)))
             {
                 ss << (first ? "" : " | ") << str;
                 first = false;

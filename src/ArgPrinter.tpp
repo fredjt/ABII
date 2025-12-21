@@ -12,8 +12,8 @@
 
 #define PRINT_ENDL 0x1
 #define RECURSE 0x2
-#define set_enum_printer(enum_printer, obj_or_type) set_enum_printer_<std::remove_reference_t<decltype(obj_or_type)>>(enum_printer<std::remove_reference_t<decltype(obj_or_type)>>)
-#define set_enum_printer_with_depth(enum_printer, obj_or_type, depth) set_enum_printer_<std::remove_reference_t<decltype(obj_or_type)>>(enum_printer<std::remove_reference_t<decltype(obj_or_type)>>, depth)
+#define set_enum_printer(enum_printer, obj_or_type) template set_enum_printer_<std::remove_reference_t<decltype(obj_or_type)>>(enum_printer<std::remove_reference_t<decltype(obj_or_type)>>)
+#define set_enum_printer_with_depth(enum_printer, obj_or_type, depth) template set_enum_printer_<std::remove_reference_t<decltype(obj_or_type)>>(enum_printer<std::remove_reference_t<decltype(obj_or_type)>>, depth)
 
 namespace abii
 {
