@@ -31,14 +31,16 @@ locations.
 
 ## Current Plugins
 
-- example-logger: An example plugin to showcase logging function calls.
+- <a href=https://github.com/fredjt/ABII-example-logging-plugin>example-logger</a>: An example plugin to showcase
+  logging function calls.
 
 ## In-Development
 
-- glibc-logger: A plugin to log calls to glibc (libc.so.6) functions.
+- <a href=https://github.com/fredjt/ABII-c-logging-plugin>c-logger</a>: A plugin to log calls to glibc (libc.so.6)
+  functions.
 - steam_api-logger: A plugin to log calls to Steam API (libsteam_api.so) functions.
 
 ## Future Plans
 
-- glibc-replay: A plugin to capture calls and recreate a source file with the captured calls to be replayed.
-- glibc-python: A plugin to enable replacing or hooking library calls with python scripts.
+- c-replay: A plugin to capture calls and recreate a source file with the captured calls to be replayed.
+- c-python: A plugin to enable replacing or hooking library calls with python scripts.
