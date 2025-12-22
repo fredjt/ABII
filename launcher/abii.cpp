@@ -19,16 +19,20 @@
 static constexpr auto HELP = R"(
 ABII - Application Binary Interface Interceptor
 
-Usage: abii <plugin> <syms> [--searchpath <searchpath>] <program>...
+Usage:
+    abii <plugin> <syms> [--searchpath <searchpath>] <program>...
+    abii <plugin> --list-syms
 
 Options:
     -h --help                     Show this screen.
     --version                     Show the version number.
     --searchpath <searchpath>     Additional colon-separated plugin search path.
+    --list-syms                   List functions available for interception in <plugin>
 )";
 
 static constexpr auto DATA_PATH = "/usr/share/abii/";
 static const auto BASE_PATH = std::string(DATA_PATH) + "plugins/";
+static const auto SYMS_PATH = std::string(DATA_PATH) + "syms/";
 static const std::vector<std::string> ARCHS = {"32", "64"};
 static const auto ASSEMBLY_TEMPLATE = std::string(DATA_PATH) + "template.S";
 static constexpr auto TMPDIR = "/tmp/abii/";
@@ -89,6 +93,13 @@ int main(const int argc, char** argv)
 {
     std::map<std::string, docopt::value> args =
         docopt::docopt(HELP, {argv + 1, argv + argc}, true, "ABII " PROJECT_VERSION);
+
+    if (args["--list-syms"])
+    {
+        std::ifstream symsf(SYMS_PATH + args["<plugin>"].asString());
+        std::cout << symsf.rdbuf() << std::endl;
+        return 0;
+    }
 
     std::vector<const char*> launch_args;
     for (const auto& arg : args["<program>"].asStringList())
@@ -166,10 +177,15 @@ int main(const int argc, char** argv)
     setenv("LD_LIBRARY_PATH", ld_library_path.c_str(), 1);
     setenv("LD_PRELOAD", ld_preload.c_str(), 1);
 
+#ifndef NDEBUG
     std::cout << "LD_LIBRARY_PATH=" << ld_library_path << std::endl;
     std::cout << "LD_PRELOAD=" << ld_preload << std::endl;
-    std::cout << "Capturing calls to " << args["<syms>"].asString() << std::endl;
+#endif
+
+    std::cout << "[ABII] Capturing calls to " << args["<syms>"].asString() << std::endl;
 
     execvp(launch_args[0], const_cast<char* const*>(launch_args.data()));
+
+    std::cerr << "[ABII] ERROR: execvp(): Failed to launch program " << launch_args.data() << std::endl;
     return 0;
 }
