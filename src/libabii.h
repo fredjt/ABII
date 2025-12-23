@@ -210,7 +210,7 @@ inline void* get_real_symbol(const char* symbol_name, const char* library)
 }
 
 template <typename T>
-bool bomb_detector(T* ptr, size_t size = 0)
+bool bomb_detector(T* ptr, const size_t size = 0)
 {
     if (ptr == nullptr)
         return false;
@@ -235,7 +235,7 @@ bool bomb_detector(T* ptr, size_t size = 0)
 }
 
 template <>
-inline bool bomb_detector<char>(char* ptr, size_t size)
+inline bool bomb_detector<char>(char* ptr, const size_t size)
 {
     if (ptr == nullptr)
         return false;
@@ -265,7 +265,7 @@ inline bool bomb_detector<char>(char* ptr, size_t size)
 }
 
 template <>
-inline bool bomb_detector<const char>(const char* ptr, size_t size)
+inline bool bomb_detector<const char>(const char* ptr, const size_t size)
 {
     if (ptr == nullptr)
         return false;
@@ -306,30 +306,34 @@ template <typename T>
 std::string get_type([[maybe_unused]] T& i) requires std::is_polymorphic_v<T>
 {
     const void* vptr = *reinterpret_cast<void**>(&i);
-    if (const void* rtti = vptr ? reinterpret_cast<void* const*>(vptr)[-1] : nullptr; rtti != nullptr)
+    if (const void* rtti = vptr ? static_cast<void* const*>(vptr)[-1] : nullptr; rtti != nullptr)
         return demangle(typeid(i).name());
-    return demangle(typeid(T).name());
+
+    std::string s = demangle(typeid(std::remove_reference_t<T>).name());
+
+    if constexpr (std::is_const_v<std::remove_reference_t<T>>) s = "const " + s;
+    if constexpr (std::is_volatile_v<std::remove_reference_t<T>>) s = "volatile " + s;
+
+    // TODO: Store reference info
+    // if constexpr (std::is_lvalue_reference_v<T>) s += "&";
+    // if constexpr (std::is_rvalue_reference_v<T>) s += "&&";
+
+    return s;
 }
 
 template <typename T>
 std::string get_type([[maybe_unused]] T& i) requires (!std::is_polymorphic_v<T>)
 {
-    return demangle(typeid(i).name());
-}
+    std::string s = demangle(typeid(std::remove_reference_t<T>).name());
 
-template <typename T>
-std::string get_type([[maybe_unused]] const T& i) requires (std::is_const_v<T> && std::is_polymorphic_v<T>)
-{
-    const void* vptr = *reinterpret_cast<void**>(&i);
-    if (const void* rtti = vptr ? reinterpret_cast<void* const*>(vptr)[-1] : nullptr; rtti != nullptr)
-        return demangle(typeid(i).name());
-    return demangle(typeid(T).name());
-}
+    if constexpr (std::is_const_v<std::remove_reference_t<T>>) s = "const " + s;
+    if constexpr (std::is_volatile_v<std::remove_reference_t<T>>) s = "volatile " + s;
 
-template <typename T>
-std::string get_type([[maybe_unused]] const T& i) requires (std::is_const_v<T> && !std::is_polymorphic_v<T>)
-{
-    return demangle(typeid(i).name());
+    // TODO: Store reference info
+    // if constexpr (std::is_lvalue_reference_v<T>) s += "&";
+    // if constexpr (std::is_rvalue_reference_v<T>) s += "&&";
+
+    return s;
 }
 
 inline std::string get_symbol_name(const volatile void* ptr)
@@ -397,8 +401,9 @@ std::string print_or_enum_entries(const T v, const defines_maps&... maps)
     auto search_in_map = [&](const auto& defines)
     {
         for (const auto& [define, str] : defines)
-            if (v == static_cast<const T>(define) || (static_cast<const T>(define) > 0 && v >= static_cast<const T>(define) &&
-                (v & static_cast<const T>(define)) == static_cast<const T>(define)))
+            if (v == static_cast<const T>(define) || (static_cast<const T>(define) > 0
+                && v >= static_cast<const T>(define)
+                && (v & static_cast<const T>(define)) == static_cast<const T>(define)))
             {
                 ss << (first ? "" : " | ") << str;
                 first = false;
@@ -489,6 +494,16 @@ inline std::string print_diff(const std::string& arg1, const std::string& arg2)
 
 struct ArgsPrinter
 {
+    ~ArgsPrinter()
+    {
+        std::ranges::for_each(args_, [](const auto& arg)
+        {
+            delete std::get<0>(arg);
+        });
+        delete func_;
+        delete ret_;
+    }
+
     void push_arg(VirtArgPrinter* arg)
     {
         std::stringstream ss;

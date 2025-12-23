@@ -19,10 +19,10 @@
 struct test_struct
 {
     bool a = BOOL_MAX;
-    short b = SHRT_MAX;
-    int c = INT_MAX;
+    const short b = SHRT_MAX;
+    volatile int c = INT_MAX;
     long d = LONG_MAX;
-    long long e = LONG_LONG_MAX;
+    const volatile long long e = LONG_LONG_MAX;
     float f = FLT_MAX;
     double g = DBL_MAX;
     long double h = LDBL_MAX;
@@ -32,7 +32,8 @@ struct test_struct
     int* l = new int(1);
 };
 
-std::ostream& operator<<(std::ostream& os, const test_struct& obj)
+template <typename T> requires std::is_same_v<std::remove_cvref_t<T>, test_struct>
+std::ostream& operator<<(std::ostream& os, T&& obj)
 {
     OVERRIDE_STREAM_PREFIX
     abii_args->push_arg(new abii::ArgPrinter(obj.a, "a", &os));
@@ -82,14 +83,14 @@ const char* va_func(const char* fmt, ...)
 BOOST_AUTO_TEST_CASE(test_bool)
 {
     auto abii_logger = Logger("test_bool");
-    TEST_TYPE(bool, 0)
+    TEST_TYPE(const bool, 0)
     TEST_TYPE(bool, BOOL_MAX)
 }
 
 BOOST_AUTO_TEST_CASE(test_char)
 {
     auto abii_logger = Logger("test_char");
-    TEST_TYPE(char, CHAR_MIN)
+    TEST_TYPE(volatile char, CHAR_MIN)
     TEST_TYPE(char, 0)
     TEST_TYPE(char, CHAR_MAX)
 }
