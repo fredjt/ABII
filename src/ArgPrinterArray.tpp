@@ -293,6 +293,9 @@ private:
     static size_t def_len_;
 };
 
+template <size_t N>
+size_t ArgPrinter<__locale_data*[N]>::def_len_ = N;
+
 /**
  * Template specialization of template class ArgPrinter for __locale_data pointer types
  *
