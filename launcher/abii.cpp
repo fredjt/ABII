@@ -94,7 +94,7 @@ int main(const int argc, char** argv)
     std::map<std::string, docopt::value> args =
         docopt::docopt(HELP, {argv + 1, argv + argc}, true, "ABII " PROJECT_VERSION);
 
-    if (args["--list-syms"])
+    if (args["--list-syms"].asBool())
     {
         std::ifstream symsf(SYMS_PATH + args["<plugin>"].asString());
         std::cout << symsf.rdbuf() << std::endl;
@@ -112,7 +112,7 @@ int main(const int argc, char** argv)
     for (const auto& arch : ARCHS)
         ld_library_path += TMPDIR + arch + "/:" + BASE_PATH + arch + "/:";
 
-    if (args["--searchpath"])
+    if (args["--searchpath"].asBool())
         ld_library_path += args["--searchpath"].asString();
 
     std::string ld_preload = std::string(HOOKS_LIB) + ":lib" + args["<plugin>"].asString() + ".so";
