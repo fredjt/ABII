@@ -109,11 +109,12 @@ int main(const int argc, char** argv)
     const char* old_ld_preload = getenv("LD_PRELOAD");
 
     std::string ld_library_path;
-    for (const auto& arch : ARCHS)
-        ld_library_path += TMPDIR + arch + "/:" + BASE_PATH + arch + "/:";
 
     if (args["--searchpath"])
         ld_library_path += args["--searchpath"].asString();
+
+    for (const auto& arch : ARCHS)
+        ld_library_path += std::string(":") + TMPDIR + arch + "/:" + BASE_PATH + arch + "/";
 
     std::string ld_preload = std::string(HOOKS_LIB) + ":lib" + args["<plugin>"].asString() + ".so";
 
