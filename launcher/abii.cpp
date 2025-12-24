@@ -34,7 +34,6 @@ static constexpr auto DATA_PATH = "/usr/share/abii/";
 static const auto BASE_PATH = std::string(DATA_PATH) + "plugins/";
 static const auto SYMS_PATH = std::string(DATA_PATH) + "syms/";
 static const std::vector<std::string> ARCHS = {"32", "64"};
-static const auto ASSEMBLY_TEMPLATE = std::string(DATA_PATH) + "template.S";
 static constexpr auto TMPDIR = "/tmp/abii/";
 static constexpr auto HOOKS_LIB = "libabii_hooks.so";
 
@@ -118,18 +117,6 @@ int main(const int argc, char** argv)
 
     std::string ld_preload = std::string(HOOKS_LIB) + ":lib" + args["<plugin>"].asString() + ".so";
 
-    if (old_ld_library_path != nullptr)
-    {
-        ld_library_path += ":";
-        ld_library_path += old_ld_library_path;
-    }
-
-    if (old_ld_preload != nullptr)
-    {
-        ld_preload += ":";
-        ld_preload += old_ld_preload;
-    }
-
     const auto syms = splitStr(args["<syms>"].asString(), ',');
     const auto ld_lib_paths = splitStr(ld_library_path, ':');
 
@@ -137,7 +124,7 @@ int main(const int argc, char** argv)
 
     for (const auto& arch : ARCHS)
     {
-        std::string plugin_path;
+        std::filesystem::path plugin_path;
         for (const auto& path : ld_lib_paths)
         {
             const auto lib = std::string(path) + "/lib" + args["<plugin>"].asString() + ".so";
@@ -158,12 +145,13 @@ int main(const int argc, char** argv)
         for (const auto& sym : syms)
         {
             const auto asmfile = tmpdir + std::string(sym) + ".S";
-            processFile(ASSEMBLY_TEMPLATE, asmfile, "@SYMBOL@", std::string(sym));
+            processFile(std::string(DATA_PATH) + "asm-stubs/" + arch + "/stub-" + arch + ".S", asmfile, "@SYMBOL@",
+                        std::string(sym));
 
             const auto objfile = tmpdir + std::string(sym) + ".o";
             objfiles.push_back(objfile);
 
-            system(("as --" + arch + " " + asmfile + " -o " + objfile).c_str());
+            system(("gcc -m" + arch + " -c -fPIC " + asmfile + " -o " + objfile).c_str());
         }
 
         std::stringstream objfiles_ss;
@@ -172,8 +160,15 @@ int main(const int argc, char** argv)
 
         const auto sofile = tmpdir + HOOKS_LIB;
 
-        system(("gcc -m" + arch + " -shared " + objfiles_ss.str() + " " + plugin_path + " -o " + sofile).c_str());
+        system(
+            ("gcc -m" + arch + " -shared " + objfiles_ss.str() + " " + plugin_path.string() + " -o " + sofile).c_str());
     }
+
+    if (old_ld_library_path != nullptr)
+        ld_library_path += std::string(":") + old_ld_library_path;
+
+    if (old_ld_preload != nullptr)
+        ld_preload += std::string(":") + old_ld_preload;
 
     setenv("LD_LIBRARY_PATH", ld_library_path.c_str(), 1);
     setenv("LD_PRELOAD", ld_preload.c_str(), 1);

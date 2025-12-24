@@ -1,0 +1,5 @@
+if (BIT32)
+	install(FILES stub-32.S DESTINATION share/abii/asm-stubs/32)
+else ()
+	install(FILES stub-64.S DESTINATION share/abii/asm-stubs/64)
+endif ()

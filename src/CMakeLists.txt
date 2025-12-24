@@ -86,6 +86,4 @@ install(EXPORT abiiTargets
         NAMESPACE abii::
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/abii)
 
-if (NOT BIT32)
-	install(FILES template.S DESTINATION share/abii)
-endif ()
+add_subdirectory(asm_hooks)
