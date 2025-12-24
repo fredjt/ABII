@@ -14,16 +14,10 @@ namespace abii
 {
 std::string get_logfname()
 {
-    auto pid = std::to_string(getpid());
-    auto tid = std::to_string(gettid());
-    auto path = "/proc/" + pid + "/comm";
-    std::ifstream fcomm(path);
-    if (!fcomm.is_open())
-        throw std::runtime_error("Could not open " + path);
+    const auto pid = std::to_string(getpid());
+    const auto tid = std::to_string(gettid());
 
-    std::string comm;
-    std::getline(fcomm, comm);
-    return std::string(getenv("HOME")) + "/abii_log/" + comm + "_" + pid + "_" + tid;
+    return std::string(getenv("HOME")) + "/abii_log/" + program_invocation_short_name + "_" + pid + "_" + tid;
 }
 
 __attribute__((constructor))
