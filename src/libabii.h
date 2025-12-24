@@ -93,7 +93,8 @@
         va_list abii_vargs; \
         va_copy(abii_vargs, valist);
 
-#define OVERRIDE_VALIST_SUFFIX(func, ret, fmt) \
+#define OVERRIDE_VALIST_SUFFIX(func, ret, valist) \
+    va_copy(abii_vargs, valist); \
     OVERRIDE_SUFFIX(func, ret)
 
 #define DUMP_VARIADIC_ARGS(str, fmt) \
