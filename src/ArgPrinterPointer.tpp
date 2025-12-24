@@ -867,12 +867,10 @@ inline void ArgPrinter<char*>::print_arg()
         std::stringstream ss;
         ss << va_list_printer(fmt_.c_str(), arg_, va_list_printer_buf_size_);
         prefix = old_prefix;
-        if (std::string str = ss.str(); !str.empty())
-        {
-            if (!print_endl_)
-                str.pop_back();
-            *os_ << std::endl << str;
-        }
+        std::string str = ss.str();
+        if (!str.empty() && !print_endl_)
+            str.pop_back();
+        *os_ << std::endl << str;
     }
     else
     {
