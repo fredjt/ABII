@@ -562,8 +562,6 @@ void ArgPrinter<T[N]>::print_arg()
     *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<void*>(arg_);
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
-    if (depth_ != -1)
-        --depth_;
     if (recurse_ && bomb_detector(arg_, len_->get_ref()))
     {
         *os_ << std::endl;
@@ -630,8 +628,6 @@ void ArgPrinter<const T[N]>::print_arg()
     *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<const void*>(arg_);
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
-    if (depth_ != -1)
-        --depth_;
     if (recurse_ && bomb_detector(arg_, len_->get_ref()))
     {
         *os_ << std::endl;
@@ -666,8 +662,6 @@ void ArgPrinter<__locale_data*[N]>::print_arg()
     *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<void*>(arg_);
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
-    if (depth_ != -1)
-        --depth_;
     if (recurse_ && bomb_detector(arg_, len_->get_ref()))
     {
         *os_ << std::endl;
@@ -702,8 +696,6 @@ void ArgPrinter<__locale_data* const[N]>::print_arg()
     *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<void*>(arg_);
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
-    if (depth_ != -1)
-        --depth_;
     if (recurse_ && bomb_detector(arg_, len_->get_ref()))
     {
         *os_ << std::endl;

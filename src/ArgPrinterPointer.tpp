@@ -812,8 +812,6 @@ void ArgPrinter<T*>::print_arg()
     *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<void*>(arg_);
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
-    if (depth_ != -1)
-        --depth_;
     if (const auto name = get_symbol_name(static_cast<void*>(arg_)); !name.empty())
         *os_ << " (" << name << ")";
     if (recurse_ && bomb_detector(arg_, len_->get_ref()))
@@ -881,8 +879,6 @@ inline void ArgPrinter<char*>::print_arg()
     *os_ << " " << static_cast<void*>(arg_);
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
-    if (depth_ != -1)
-        --depth_;
     if (const auto name = get_symbol_name(arg_); !name.empty())
         *os_ << " (" << name << ")";
     if (bomb_detector(arg_, len_->get_ref()))
@@ -931,8 +927,6 @@ inline void ArgPrinter<wchar_t*>::print_arg()
     *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<void*>(arg_);
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
-    if (depth_ != -1)
-        --depth_;
     if (const auto name = get_symbol_name(arg_); !name.empty())
         *os_ << " (" << name << ")";
     if (bomb_detector(arg_, len_->get_ref()))
@@ -1029,8 +1023,6 @@ void ArgPrinter<volatile T*>::print_arg()
     *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<volatile void*>(arg_);
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
-    if (depth_ != -1)
-        --depth_;
     if (const auto name = get_symbol_name(static_cast<volatile void*>(arg_)); !name.empty())
         *os_ << " (" << name << ")";
     if (recurse_ && bomb_detector(arg_, len_->get_ref()))
@@ -1078,8 +1070,6 @@ inline void ArgPrinter<volatile char*>::print_arg()
     *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<volatile void*>(arg_);
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
-    if (depth_ != -1)
-        --depth_;
     if (const auto name = get_symbol_name(arg_); !name.empty())
         *os_ << " (" << name << ")";
     if (bomb_detector(arg_, len_->get_ref()))
@@ -1125,8 +1115,6 @@ inline void ArgPrinter<volatile wchar_t*>::print_arg()
     *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<volatile void*>(arg_);
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
-    if (depth_ != -1)
-        --depth_;
     if (const auto name = get_symbol_name(arg_); !name.empty())
         *os_ << " (" << name << ")";
     if (bomb_detector(arg_, len_->get_ref()))
@@ -1193,8 +1181,6 @@ void ArgPrinter<const T*>::print_arg()
     *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<const void*>(arg_);
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
-    if (depth_ != -1)
-        --depth_;
     if (const auto name = get_symbol_name(static_cast<const void*>(arg_)); !name.empty())
         *os_ << " (" << name << ")";
     if (recurse_ && bomb_detector(arg_, len_->get_ref()))
@@ -1242,8 +1228,6 @@ inline void ArgPrinter<const char*>::print_arg()
     *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<const void*>(arg_);
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
-    if (depth_ != -1)
-        --depth_;
     if (const auto name = get_symbol_name(arg_); !name.empty())
         *os_ << " (" << name << ")";
     if (bomb_detector(arg_, len_->get_ref()))
@@ -1289,8 +1273,6 @@ inline void ArgPrinter<const wchar_t*>::print_arg()
     *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<const void*>(arg_);
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
-    if (depth_ != -1)
-        --depth_;
     if (const auto name = get_symbol_name(arg_); !name.empty())
         *os_ << " (" << name << ")";
     if (bomb_detector(arg_, len_->get_ref()))
@@ -1357,8 +1339,6 @@ void ArgPrinter<const volatile T*>::print_arg()
     *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<const volatile void*>(arg_);
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
-    if (depth_ != -1)
-        --depth_;
     if (const auto name = get_symbol_name(static_cast<const volatile void*>(arg_)); !name.empty())
         *os_ << " (" << name << ")";
     if (recurse_ && bomb_detector(arg_, len_->get_ref()))
@@ -1406,8 +1386,6 @@ inline void ArgPrinter<const volatile char*>::print_arg()
     *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<const volatile void*>(arg_);
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
-    if (depth_ != -1)
-        --depth_;
     if (const auto name = get_symbol_name(arg_); !name.empty())
         *os_ << " (" << name << ")";
     if (bomb_detector(arg_, len_->get_ref()))
@@ -1454,8 +1432,6 @@ inline void ArgPrinter<const volatile wchar_t*>::print_arg()
     *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<const volatile void*>(arg_);
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
-    if (depth_ != -1)
-        --depth_;
     if (const auto name = get_symbol_name(arg_); !name.empty())
         *os_ << " (" << name << ")";
     if (bomb_detector(arg_, len_->get_ref()))
@@ -1523,8 +1499,6 @@ void ArgPrinter<T* const>::print_arg()
     *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<const void*>(arg_);
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
-    if (depth_ != -1)
-        --depth_;
     if (const auto name = get_symbol_name(static_cast<const void*>(arg_)); !name.empty())
         *os_ << " (" << name << ")";
     if (recurse_ && bomb_detector(arg_, len_->get_ref()))
@@ -1572,8 +1546,6 @@ inline void ArgPrinter<char* const>::print_arg()
     *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<const void*>(arg_);
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
-    if (depth_ != -1)
-        --depth_;
     if (const auto name = get_symbol_name(arg_); !name.empty())
         *os_ << " (" << name << ")";
     if (bomb_detector(arg_, len_->get_ref()))
@@ -1619,8 +1591,6 @@ inline void ArgPrinter<wchar_t* const>::print_arg()
     *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<const void*>(arg_);
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
-    if (depth_ != -1)
-        --depth_;
     if (const auto name = get_symbol_name(arg_); !name.empty())
         *os_ << " (" << name << ")";
     if (bomb_detector(arg_, len_->get_ref()))
@@ -1717,8 +1687,6 @@ void ArgPrinter<volatile T* const>::print_arg()
     *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<const volatile void*>(arg_);
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
-    if (depth_ != -1)
-        --depth_;
     if (const auto name = get_symbol_name(static_cast<const volatile void*>(arg_)); !name.empty())
         *os_ << " (" << name << ")";
     if (recurse_ && bomb_detector(arg_, len_->get_ref()))
@@ -1766,8 +1734,6 @@ inline void ArgPrinter<volatile char* const>::print_arg()
     *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<const volatile void*>(arg_);
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
-    if (depth_ != -1)
-        --depth_;
     if (const auto name = get_symbol_name(arg_); !name.empty())
         *os_ << " (" << name << ")";
     if (bomb_detector(arg_, len_->get_ref()))
@@ -1813,8 +1779,6 @@ inline void ArgPrinter<volatile wchar_t* const>::print_arg()
     *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<const volatile void*>(arg_);
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
-    if (depth_ != -1)
-        --depth_;
     if (const auto name = get_symbol_name(arg_); !name.empty())
         *os_ << " (" << name << ")";
     if (bomb_detector(arg_, len_->get_ref()))
@@ -1911,8 +1875,6 @@ void ArgPrinter<const T* const>::print_arg()
     *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<const void*>(arg_);
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
-    if (depth_ != -1)
-        --depth_;
     if (const auto name = get_symbol_name(static_cast<const void*>(arg_)); !name.empty())
         *os_ << " (" << name << ")";
     if (recurse_ && bomb_detector(arg_, len_->get_ref()))
@@ -1960,8 +1922,6 @@ inline void ArgPrinter<const char* const>::print_arg()
     *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<const void*>(arg_);
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
-    if (depth_ != -1)
-        --depth_;
     if (const auto name = get_symbol_name(arg_); !name.empty())
         *os_ << " (" << name << ")";
     if (bomb_detector(arg_, len_->get_ref()))
@@ -2007,8 +1967,6 @@ inline void ArgPrinter<const wchar_t* const>::print_arg()
     *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<const void*>(arg_);
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
-    if (depth_ != -1)
-        --depth_;
     if (const auto name = get_symbol_name(arg_); !name.empty())
         *os_ << " (" << name << ")";
     if (recurse_)
@@ -2075,8 +2033,6 @@ void ArgPrinter<const volatile T* const>::print_arg()
     *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<const volatile void*>(arg_);
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
-    if (depth_ != -1)
-        --depth_;
     if (const auto name = get_symbol_name(static_cast<const volatile void*>(arg_)); !name.empty())
         *os_ << " (" << name << ")";
     if (recurse_ && bomb_detector(arg_, len_->get_ref()))
@@ -2124,8 +2080,6 @@ inline void ArgPrinter<const volatile char* const>::print_arg()
     *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<const volatile void*>(arg_);
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
-    if (depth_ != -1)
-        --depth_;
     if (const auto name = get_symbol_name(arg_); !name.empty())
         *os_ << " (" << name << ")";
     if (bomb_detector(arg_, len_->get_ref()))
@@ -2172,8 +2126,6 @@ inline void ArgPrinter<const volatile wchar_t* const>::print_arg()
     *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<const volatile void*>(arg_);
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
-    if (depth_ != -1)
-        --depth_;
     if (const auto name = get_symbol_name(arg_); !name.empty())
         *os_ << " (" << name << ")";
     if (recurse_)
