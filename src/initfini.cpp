@@ -23,7 +23,7 @@ std::string get_logfname()
 
     std::string comm;
     std::getline(fcomm, comm);
-    return std::string(getenv("HOME")) + "/abii_log/" + comm + "_" + pid + "_" + tid + ".txt";
+    return std::string(getenv("HOME")) + "/abii_log/" + comm + "_" + pid + "_" + tid;
 }
 
 __attribute__((constructor))
@@ -31,9 +31,9 @@ void abii_init()
 {
     mkdir((std::string(getenv("HOME")) + "/abii_log").c_str(), 0775);
 
-    abii_stream = std::ofstream(get_logfname(), std::ios::app);
+    abii_stream = std::ofstream(get_logfname() + ".log", std::ios::app);
     if (!abii_stream.is_open())
-        throw std::runtime_error("Could not open " + get_logfname());
+        throw std::runtime_error("Could not open " + get_logfname() + ".log");
 #ifdef BIT32
     abii_stream << "Loading 32-bit ABII in process: " << getpid() << " thread: " << gettid() << "..."
         << std::endl << std::endl;
@@ -42,8 +42,12 @@ void abii_init()
         << std::endl << std::endl;
 #endif
 
+    auto map_logstream = std::ofstream(get_logfname() + ".maps", std::ios::app);
+    if (!map_logstream.is_open())
+        throw std::runtime_error("Could not open " + get_logfname() + ".maps");
+
     const std::ifstream maps("/proc/self/maps");
-    abii_stream << maps.rdbuf() << std::endl;
+    map_logstream << maps.rdbuf() << std::endl;
     ENABLE_OVERRIDES
 }
 
@@ -51,13 +55,11 @@ __attribute__((destructor))
 static void abii_destructor()
 {
     DISABLE_OVERRIDES
-    std::ofstream os(get_logfname(), std::ios::app);
+    std::ofstream os(get_logfname() + ".log", std::ios::app);
 #ifndef BIT32
-    os << "Unloading 64-bit ABII in process: " << getpid() << " thread: " << gettid() << "..."
-        << std::endl;
+    os << "Unloading 64-bit ABII in process: " << getpid() << " thread: " << gettid() << "..." << std::endl;
 #else
-    os << "Unloading 32-bit ABII in process: " << getpid() << " thread: " << gettid() << "..."
-        << std::endl;
+    os << "Unloading 32-bit ABII in process: " << getpid() << " thread: " << gettid() << "..." << std::endl;
 #endif
     os.flush();
     os.close();
