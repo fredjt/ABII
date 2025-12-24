@@ -90,8 +90,7 @@
 
 #define OVERRIDE_VALIST_PREFIX(func, fmt, valist) \
     OVERRIDE_PREFIX(func) \
-        va_list abii_vargs; \
-        va_copy(abii_vargs, valist);
+        va_list abii_vargs;
 
 #define OVERRIDE_VALIST_SUFFIX(func, ret, valist) \
     va_copy(abii_vargs, valist); \
