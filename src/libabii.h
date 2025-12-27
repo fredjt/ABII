@@ -64,6 +64,7 @@
 
 #define OVERRIDE_STREAM_SUFFIX \
     abii_args->print_args(); \
+    delete abii_args; \
     abii::prefix = abii_old_prefix; \
     return os;
 
@@ -76,6 +77,7 @@
         va_start(abii_vargs, fmt); \
         abii_args->print_args(); \
         va_end(abii_vargs); \
+        delete abii_args; \
         abii::abii_stream << std::endl; \
         ENABLE_OVERRIDES \
         __builtin_return(ret); \
