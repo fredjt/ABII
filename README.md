@@ -19,10 +19,6 @@ logging libc.so calls). \
 Calls are logged to the user's home directory in a log folder named `abii_log`. Inside is separate logs for the injected
 process and all child process.
 
-### `abii <plugin> --list-syms`
-
-Lists all available symbols for the specified plugin.
-
 #### Options:
 
 -h, --help Show this screen.
@@ -32,6 +28,10 @@ Lists all available symbols for the specified plugin.
 --searchpath <searchpath>     Additional colon-separated plugin search path. The default paths are
 `/usr/share/abii/plugins/32:/usr/share/abii/plugins/64`, but more can be added for finding plugins installed in other
 locations.
+
+### `abii <plugin> --list-syms`
+
+Lists all available symbols for the specified plugin.
 
 ## Current Plugins
 
