@@ -20,8 +20,8 @@ static constexpr auto HELP = R"(
 ABII - Application Binary Interface Interceptor
 
 Usage:
-    abii <plugin> <syms> [--searchpath <searchpath>] <program>...
-    abii <plugin> --list-syms
+    abii --list-syms <plugin>
+    abii [--searchpath <searchpath>] <plugin> <syms> <program> [<args>...]
 
 Options:
     -h --help                     Show this screen.
@@ -91,7 +91,7 @@ int get_elf_class(const char* lib_path)
 int main(const int argc, char** argv)
 {
     std::map<std::string, docopt::value> args =
-        docopt::docopt(HELP, {argv + 1, argv + argc}, true, "ABII " PROJECT_VERSION);
+        docopt::docopt(HELP, {argv + 1, argv + argc}, true, "ABII " PROJECT_VERSION, true);
 
     if (args["--list-syms"].asBool())
     {
@@ -101,7 +101,8 @@ int main(const int argc, char** argv)
     }
 
     std::vector<const char*> launch_args;
-    for (const auto& arg : args["<program>"].asStringList())
+    launch_args.push_back(args["<program>"].asString().c_str());
+    for (const auto& arg : args["<args>"].asStringList())
         launch_args.push_back(arg.c_str());
 
     const char* old_ld_library_path = getenv("LD_LIBRARY_PATH");
@@ -182,6 +183,6 @@ int main(const int argc, char** argv)
 
     execvp(launch_args[0], const_cast<char* const*>(launch_args.data()));
 
-    std::cerr << "[ABII] ERROR: execvp(): Failed to launch program " << launch_args.data() << std::endl;
+    std::cerr << "[ABII] ERROR: execvp(): Failed to launch program " << launch_args[0] << std::endl;
     return 0;
 }

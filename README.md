@@ -9,13 +9,17 @@ It does come with an example plugin for testing and as a base for making your ow
 
 ## Usage
 
-### `abii <plugin> <syms> [--searchpath <searchpath>] <program>...`
+### `abii [--searchpath <searchpath>] <plugin> <syms> <program> [<args>...]`
 
 `<plugin>` is the name of the plugin to load. This is usually the name of the library you want to intercept without
 the "lib" prefix and ".so" suffix, followed by a "-" and the plugin type (eg. ~~lib~~ c ~~.so~~ -logger -> c-logger for
 logging libc.so calls). 
 
 `<syms>` is a comma-separated list of function names to intercept (eg. dlopen,dlsym,dlclose).
+
+`<program>` is the path to the executable you want to run with ABII.
+
+`[<args>...]` are any additional arguments to pass to the program being run.
 
 Calls are logged to the user's home directory in a log folder named `abii_log`. Inside is separate logs for the injected
 process and all child process.
@@ -30,7 +34,7 @@ process and all child process.
 `/usr/share/abii/plugins/32:/usr/share/abii/plugins/64`, but more can be added for finding plugins installed in other
 locations.
 
-### `abii <plugin> --list-syms`
+### `abii --list-syms <plugin>`
 
 Lists all available symbols for the specified plugin.
 
