@@ -9,7 +9,7 @@ It does come with an example plugin for testing and as a base for making your ow
 
 ## Usage
 
-`abii <plugin> <syms> [--searchpath <searchpath>] <program>...`
+### `abii <plugin> <syms> [--searchpath <searchpath>] <program>...`
 
 `<plugin>` is the name of the plugin to load. This is usually the name of the library you want to intercept without
 the "lib" prefix and ".so" suffix, followed by a "-" and the plugin type (eg. ~~lib~~ c ~~.so~~ -logger -> c-logger for
@@ -18,6 +18,10 @@ logging libc.so calls). \
 
 Calls are logged to the user's home directory in a log folder named `abii_log`. Inside is separate logs for the injected
 process and all child process.
+
+### `abii <plugin> --list-syms`
+
+Lists all available symbols for the specified plugin.
 
 #### Options:
 
