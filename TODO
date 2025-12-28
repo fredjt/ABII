@@ -1,0 +1,1 @@
+- Use compile-time language introspection when available (likely C++29) to generate struct layouts dynamically
