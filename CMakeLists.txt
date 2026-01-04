@@ -13,6 +13,7 @@ if (NOT CMAKE_BUILD_TYPE STREQUAL "Debug" AND NOT CMAKE_BUILD_TYPE STREQUAL "DEB
 	set(CMAKE_OPTIMIZE_DEPENDENCIES TRUE)
 	add_compile_options("-flto" "-ffat-lto-objects" "-O3")
 endif ()
+add_compile_options("-march=x86-64")
 
 option(BIT32 "32 BIT")
 
