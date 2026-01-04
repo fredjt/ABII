@@ -157,14 +157,17 @@ inline std::ostream& operator<<(std::ostream& os, const wchar_t& wc)
     return os << str;
 }
 
-#if __HAVE_FLOAT128
+inline std::ostream& operator<<(std::ostream& os, const _Float16& f)
+{
+    return os << static_cast<double>(f);
+}
+
 inline std::ostream& operator<<(std::ostream& os, const _Float128& f)
 {
     char buf[128];
     quadmath_snprintf(buf, sizeof(buf), "%.36Qg", f);
     return os << buf;
 }
-#endif
 
 inline void* get_real_symbol(const char* symbol_name, const char* library)
 {
