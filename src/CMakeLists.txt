@@ -23,12 +23,11 @@ find_package(ICU COMPONENTS i18n uc)
 
 target_include_directories(utils PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}> $<INSTALL_INTERFACE:include>)
 target_link_libraries(utils PUBLIC ICU::i18n ICU::uc)
-set_target_properties(utils PROPERTIES COMPILE_FLAGS "-fPIC" LINK_FLAGS "-fPIC")
+target_compile_options(utils PUBLIC -msse2 -fPIC)
+target_link_options(utils PUBLIC -msse2 -fPIC)
 
 add_library(abiinterceptor STATIC initfini.cpp)
 target_link_libraries(abiinterceptor PUBLIC utils)
-
-set_target_properties(abiinterceptor PROPERTIES COMPILE_FLAGS "-fPIC" LINK_FLAGS "-fPIC")
 
 if (BIT32)
 	target_compile_options(abiinterceptor PUBLIC "-m32")
