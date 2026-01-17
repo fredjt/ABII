@@ -4,7 +4,6 @@
 
 #include <cstdlib>
 #include <cstring>
-#include <docopt.h>
 #include <elf.h>
 #include <fcntl.h>
 #include <filesystem>
@@ -16,19 +15,7 @@
 #include <vector>
 #include <sys/stat.h>
 
-static constexpr auto HELP = R"(
-ABII - Application Binary Interface Interceptor
-
-Usage:
-    abii --list-syms <plugin>
-    abii [--searchpath <searchpath>] <plugin> <syms> <program> [<args>...]
-
-Options:
-    -h --help                     Show this screen.
-    --version                     Show the version number.
-    --searchpath <searchpath>     Additional colon-separated plugin search path.
-    --list-syms                   List functions available for interception in <plugin>
-)";
+#include "CLI11.hpp"
 
 static constexpr auto DATA_PATH = "/usr/share/abii/";
 static const auto BASE_PATH = std::string(DATA_PATH) + "plugins/";
@@ -85,24 +72,44 @@ int get_elf_class(const char* lib_path)
     if (memcmp(ident, ELFMAG, SELFMAG) != 0)
         return -1;
 
-    return ident[EI_CLASS]; // ELFCLASS32 or ELFCLASS64
+    return ident[EI_CLASS];
 }
 
 int main(const int argc, char** argv)
 {
-    std::map<std::string, docopt::value> args =
-        docopt::docopt(HELP, {argv + 1, argv + argc}, true, "ABII " PROJECT_VERSION, true);
+    CLI::App app{"ABII - Application Binary Interface Interceptor"};
+    argv = app.ensure_utf8(argv);
+    app.set_version_flag("-v,--version", "ABII v" PROJECT_VERSION);
 
-    if (args["--list-syms"].asBool())
+    std::string plugin;
+    std::string searchpath;
+    std::string symbols;
+    std::string program;
+    std::vector<std::string> arguments;
+
+    auto list_syms = app.add_subcommand("list-syms", "List functions available for interception in <plugin>");
+    auto intercept_cmd = app.add_subcommand("run", "Run <program> <args>... and intercept <syms> using <plugin>");
+
+    app.add_option("--searchpath", searchpath, "Additional colon-separated plugin search path");
+    app.add_option("<plugin>", plugin, "Plugin from which to list syms")->required();
+
+    intercept_cmd->add_flag("--vulkan", "Register the plugin as a vulkan layer (only valid for certain plugins)");
+    intercept_cmd->add_option("<syms>", symbols, "Comma-separated list of symbols to be intercepted")->required();
+    intercept_cmd->add_option("<program>", program, "The program to be captured")->required();
+    intercept_cmd->add_option("<args>", arguments, "Arguments passed to <program>");
+
+    CLI11_PARSE(app, argc, argv);
+
+    if (*list_syms)
     {
-        std::ifstream symsf(SYMS_PATH + args["<plugin>"].asString());
+        std::ifstream symsf(SYMS_PATH + plugin);
         std::cout << symsf.rdbuf() << std::endl;
         return 0;
     }
 
     std::vector<const char*> launch_args;
-    launch_args.push_back(args["<program>"].asString().c_str());
-    for (const auto& arg : args["<args>"].asStringList())
+    launch_args.push_back(program.c_str());
+    for (const auto& arg : arguments)
         launch_args.push_back(arg.c_str());
 
     const char* old_ld_library_path = getenv("LD_LIBRARY_PATH");
@@ -110,15 +117,15 @@ int main(const int argc, char** argv)
 
     std::string ld_library_path;
 
-    if (args["--searchpath"])
-        ld_library_path += args["--searchpath"].asString();
+    if (app.count("--searchpath"))
+        ld_library_path += searchpath;
 
     for (const auto& arch : ARCHS)
         ld_library_path += std::string(":") + TMPDIR + arch + "/:" + BASE_PATH + arch + "/";
 
-    std::string ld_preload = std::string(HOOKS_LIB) + ":lib" + args["<plugin>"].asString() + ".so";
+    std::string ld_preload = std::string(HOOKS_LIB) + ":lib" + plugin + ".so";
 
-    const auto syms = splitStr(args["<syms>"].asString(), ',');
+    const auto syms = splitStr(symbols, ',');
     const auto ld_lib_paths = splitStr(ld_library_path, ':');
 
     std::filesystem::create_directories(TMPDIR);
@@ -128,7 +135,7 @@ int main(const int argc, char** argv)
         std::filesystem::path plugin_path;
         for (const auto& path : ld_lib_paths)
         {
-            const auto lib = std::string(path) + "/lib" + args["<plugin>"].asString() + ".so";
+            const auto lib = std::string(path) + "/lib" + plugin + ".so";
             if (std::filesystem::exists(path) && ((arch == "32" && get_elf_class(lib.c_str()) == ELFCLASS32)
                 || (arch == "64" && get_elf_class(lib.c_str()) == ELFCLASS64)))
             {
@@ -138,7 +145,7 @@ int main(const int argc, char** argv)
         }
         if (plugin_path == "")
             throw std::runtime_error(
-                "ERROR: Cannot find " + arch + "-bit lib" + args["<plugin>"].asString() + ".so to link with!");
+                "ERROR: Cannot find " + arch + "-bit lib" + plugin + ".so to link with!");
 
         std::string tmpdir = TMPDIR + arch + "/";
         mkdir(tmpdir.c_str(), 0700);
@@ -179,7 +186,7 @@ int main(const int argc, char** argv)
     std::cout << "LD_PRELOAD=" << ld_preload << std::endl;
 #endif
 
-    std::cout << "[ABII] Capturing calls to " << args["<syms>"].asString() << std::endl;
+    std::cout << "[ABII] Capturing calls to " << symbols << std::endl;
 
     execvp(launch_args[0], const_cast<char* const*>(launch_args.data()));
 
