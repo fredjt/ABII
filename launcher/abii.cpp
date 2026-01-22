@@ -18,7 +18,7 @@
 #include "CLI11.hpp"
 
 static constexpr auto DATA_PATH = "/usr/share/abii/";
-static const auto BASE_PATH = std::string(DATA_PATH) + "plugins/";
+static const auto PLUGIN_PATH = std::string(DATA_PATH) + "plugins/";
 static const auto SYMS_PATH = std::string(DATA_PATH) + "syms/";
 static const std::vector<std::string> ARCHS = {"32", "64"};
 static constexpr auto TMPDIR = "/tmp/abii/";
@@ -93,7 +93,6 @@ int main(const int argc, char** argv)
     app.add_option("--searchpath", searchpath, "Additional colon-separated plugin search path");
     app.add_option("<plugin>", plugin, "Plugin from which to list syms")->required();
 
-    intercept_cmd->add_flag("--vulkan", "Register the plugin as a vulkan layer (only valid for certain plugins)");
     intercept_cmd->add_option("<syms>", symbols, "Comma-separated list of symbols to be intercepted")->required();
     intercept_cmd->add_option("<program>", program, "The program to be captured")->required();
     intercept_cmd->add_option("<args>", arguments, "Arguments passed to <program>");
@@ -121,14 +120,12 @@ int main(const int argc, char** argv)
         ld_library_path += searchpath;
 
     for (const auto& arch : ARCHS)
-        ld_library_path += std::string(":") + TMPDIR + arch + "/:" + BASE_PATH + arch + "/";
+        ld_library_path += std::string(":") + TMPDIR + arch + "/:" + PLUGIN_PATH + arch + "/";
 
     std::string ld_preload = std::string(HOOKS_LIB) + ":lib" + plugin + ".so";
 
     const auto syms = splitStr(symbols, ',');
     const auto ld_lib_paths = splitStr(ld_library_path, ':');
-
-    std::filesystem::create_directories(TMPDIR);
 
     for (const auto& arch : ARCHS)
     {
@@ -144,11 +141,11 @@ int main(const int argc, char** argv)
             }
         }
         if (plugin_path == "")
-            throw std::runtime_error(
-                "ERROR: Cannot find " + arch + "-bit lib" + plugin + ".so to link with!");
+            throw std::runtime_error("ERROR: Cannot find " + arch + "-bit lib" + plugin + ".so to link with!");
 
         std::string tmpdir = TMPDIR + arch + "/";
-        mkdir(tmpdir.c_str(), 0700);
+        std::filesystem::create_directories(tmpdir.c_str());
+
         std::vector<std::string> objfiles;
         for (const auto& sym : syms)
         {
