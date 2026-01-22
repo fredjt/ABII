@@ -59,7 +59,7 @@ struct ArgPrinter<Ret(*)(Args...)>final : VirtArgPrinter
     [[nodiscard]] std::string get_value() const override
     {
         std::stringstream ss;
-        ss << arg_;
+        ss << reinterpret_cast<void*>(arg_);
         return ss.str();
     }
 
@@ -133,7 +133,7 @@ struct ArgPrinter<Ret(* const)(Args...)>final : VirtArgPrinter
     [[nodiscard]] std::string get_value() const override
     {
         std::stringstream ss;
-        ss << arg_;
+        ss << reinterpret_cast<void*>(arg_);
         return ss.str();
     }
 
