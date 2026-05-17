@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.28)
 
 # Minor version increments with each new plugin
 # Patch version increments with bugfixes and other changes not accompanied by new plugins
-project(ABII LANGUAGES CXX VERSION 1.1.7)
+project(ABII LANGUAGES CXX VERSION 1.1.8)
 
 set(CMAKE_CXX_STANDARD 20)
 
