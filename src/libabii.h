@@ -16,6 +16,7 @@
 #include <unistd.h>
 #include <vector>
 
+#include "initfini.h"
 #include "Logger.h"
 #include "utils.h"
 

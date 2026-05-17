@@ -177,6 +177,7 @@ int main(const int argc, char** argv)
 
     setenv("LD_LIBRARY_PATH", ld_library_path.c_str(), 1);
     setenv("LD_PRELOAD", ld_preload.c_str(), 1);
+    setenv("ABII_SYMS", symbols.c_str(), 1);
 
 #ifndef NDEBUG
     std::cout << "LD_LIBRARY_PATH=" << ld_library_path << std::endl;

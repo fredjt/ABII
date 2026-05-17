@@ -13,6 +13,7 @@ if (NOT BIT32)
 	    ArgPrinterArray.tpp
 	    ArgPrinterFunction.tpp
 	    ArgPrinterPointer.tpp
+	    initfini.h
 	    libabii.h
 	    Logger.h
 	    utils.h)

@@ -6,6 +6,7 @@
 #define ABII_LOGGER_H
 
 #include <fstream>
+#include <sys/stat.h>
 
 #define LOG_DIR std::string(getenv("HOME")) + "/abii_log"
 
@@ -16,7 +17,16 @@ class Logger
 
 public:
     Logger() = delete;
-    explicit Logger(const char* scope) : scope_(scope) { ofstream_ << "Entering " << scope_ << std::endl; }
+
+    explicit Logger(const char* scope) : scope_(scope)
+    {
+        mkdir("abii_log", 0775);
+        if (!ofstream_.is_open())
+            ofstream_ = std::ofstream(LOG_DIR "/###TRACE_LOG###.log", std::ios::app);
+
+        ofstream_ << "Entering " << scope_ << std::endl;
+    }
+
     ~Logger() { ofstream_ << "Exiting " << scope_ << std::endl; }
     friend void LoggerInit();
 };
