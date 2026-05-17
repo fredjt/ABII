@@ -8,7 +8,6 @@
 #include <cassert>
 #include <string>
 #include <unicode/unistr.h>
-#include <unicode/ustream.h>
 
 namespace abii
 {
