@@ -56,7 +56,7 @@ struct ArgPrinter<T[N]>final : VirtArgPrinter
     void set_enum_printer_(const std::function<std::string(V)>& enum_printer, size_t depth = 0)
     {
         enum_printers_.insert({
-            depth, [enum_printer](const void* arg) -> std::string { return enum_printer(*static_cast<V*>(arg)); }
+            depth, [enum_printer](void* arg) -> std::string { return enum_printer(*static_cast<V*>(arg)); }
         });
     }
 
@@ -254,7 +254,7 @@ struct ArgPrinter<__locale_data*[N]>final : VirtArgPrinter
     void set_enum_printer_(const std::function<std::string(V)>& enum_printer, size_t depth = 0)
     {
         enum_printers_.insert({
-            depth, [enum_printer](const void* arg) -> std::string { return enum_printer(*static_cast<V*>(arg)); }
+            depth, [enum_printer](void* arg) -> std::string { return enum_printer(*static_cast<V*>(arg)); }
         });
     }
 
@@ -340,7 +340,7 @@ struct ArgPrinter<__locale_data* const[N]>final : VirtArgPrinter
     void set_enum_printer_(const std::function<std::string(V)>& enum_printer, size_t depth = 0)
     {
         enum_printers_.insert({
-            depth, [enum_printer](const void* arg) -> std::string { return enum_printer(*static_cast<V*>(arg)); }
+            depth, [enum_printer](void* arg) -> std::string { return enum_printer(*static_cast<V*>(arg)); }
         });
     }
 
