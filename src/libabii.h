@@ -159,6 +159,29 @@ inline std::ostream& operator<<(std::ostream& os, const wchar_t& wc)
     return os << str;
 }
 
+inline std::ostream& operator<<(std::ostream& os, const char8_t& c8)
+{
+    return os << static_cast<char>(c8);
+}
+
+inline std::ostream& operator<<(std::ostream& os, const char16_t& c16)
+{
+    icu::UnicodeString us;
+    us.append(c16);
+
+    std::string s;
+    return os << us.toUTF8String(s);
+}
+
+inline std::ostream& operator<<(std::ostream& os, const char32_t& c32)
+{
+    icu::UnicodeString us;
+    us.append(static_cast<UChar32>(c32));
+
+    std::string s;
+    return os << us.toUTF8String(s);
+}
+
 inline std::ostream& operator<<(std::ostream& os, const _Float16& f)
 {
     return os << static_cast<double>(f);
