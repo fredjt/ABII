@@ -6,6 +6,8 @@
 #define ABII_UTILS_H
 
 #include <cassert>
+#include <cstdint>
+#include <iomanip>
 #include <string>
 #include <unicode/unistr.h>
 
@@ -109,6 +111,36 @@ inline std::string wide_to_narrow_str(const std::wstring& wide_string)
     for (const auto wchar : wide_string)
         ss << wide_to_narrow_char(wchar);
     return ss.str();
+}
+
+inline void hexdump(std::ostream& os, const volatile void* data, const std::size_t size, const std::uintptr_t base = 16)
+{
+    const auto bytes = static_cast<const volatile std::byte*>(data);
+    constexpr std::size_t width = 16;
+
+    for (std::size_t i = 0; i < size; i += width)
+    {
+        os << std::setw(8) << std::setfill('0') << std::hex << (base + i) << "  ";
+
+        for (std::size_t j = 0; j < width; ++j)
+            if (i + j < size)
+                os << std::setw(2) << std::to_integer<unsigned>(bytes[i + j]) << ' ';
+            else
+                os << "   ";
+
+        os << " |";
+
+        for (std::size_t j = 0; j < width && i + j < size; ++j)
+        {
+            const unsigned c = std::to_integer<unsigned>(bytes[i + j]);
+            os << (std::isprint(c) ? static_cast<char>(c) : '.');
+        }
+
+        os << '|';
+        if (i < size - width)
+            os << '\n';
+    }
+    os << std::dec << std::setfill(' ');
 }
 }
 

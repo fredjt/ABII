@@ -1004,6 +1004,14 @@ inline void ArgPrinter<void*>::print_arg()
         *os_ << " [" << enum_printer(arg_) << "]";
     if (const auto name = get_symbol_name(arg_); !name.empty())
         *os_ << " (" << name << ")";
+    if (recurse_ && bomb_detector(static_cast<const volatile std::byte*>(arg_), len_->get_ref()))
+    {
+        *os_ << std::endl;
+        const auto old_prefix = prefix;
+        prefix += "\t";
+        hexdump(*os_, arg_, len_->get_ref());
+        prefix = old_prefix;
+    }
     if (print_endl_)
         *os_ << std::endl;
 }
@@ -1162,6 +1170,14 @@ inline void ArgPrinter<volatile void*>::print_arg()
         *os_ << " [" << enum_printer(arg_) << "]";
     if (const auto name = get_symbol_name(arg_); !name.empty())
         *os_ << " (" << name << ")";
+    if (recurse_ && bomb_detector(static_cast<const volatile std::byte*>(arg_), len_->get_ref()))
+    {
+        *os_ << std::endl;
+        const auto old_prefix = prefix;
+        prefix += "\t";
+        hexdump(*os_, arg_, len_->get_ref());
+        prefix = old_prefix;
+    }
     if (print_endl_)
         *os_ << std::endl;
 }
@@ -1320,6 +1336,14 @@ inline void ArgPrinter<const void*>::print_arg()
         *os_ << " [" << enum_printer(arg_) << "]";
     if (const auto name = get_symbol_name(arg_); !name.empty())
         *os_ << " (" << name << ")";
+    if (recurse_ && bomb_detector(static_cast<const volatile std::byte*>(arg_), len_->get_ref()))
+    {
+        *os_ << std::endl;
+        const auto old_prefix = prefix;
+        prefix += "\t";
+        hexdump(*os_, arg_, len_->get_ref());
+        prefix = old_prefix;
+    }
     if (print_endl_)
         *os_ << std::endl;
 }
@@ -1480,6 +1504,14 @@ inline void ArgPrinter<const volatile void*>::print_arg()
         *os_ << " [" << enum_printer(arg_) << "]";
     if (const auto name = get_symbol_name(arg_); !name.empty())
         *os_ << " (" << name << ")";
+    if (recurse_ && bomb_detector(static_cast<const volatile std::byte*>(arg_), len_->get_ref()))
+    {
+        *os_ << std::endl;
+        const auto old_prefix = prefix;
+        prefix += "\t";
+        hexdump(*os_, arg_, len_->get_ref());
+        prefix = old_prefix;
+    }
     if (print_endl_)
         *os_ << std::endl;
 }
@@ -1668,6 +1700,14 @@ inline void ArgPrinter<void* const>::print_arg()
         *os_ << " [" << enum_printer(arg_) << "]";
     if (const auto name = get_symbol_name(arg_); !name.empty())
         *os_ << " (" << name << ")";
+    if (recurse_ && bomb_detector(static_cast<const volatile std::byte*>(arg_), len_->get_ref()))
+    {
+        *os_ << std::endl;
+        const auto old_prefix = prefix;
+        prefix += "\t";
+        hexdump(*os_, arg_, len_->get_ref());
+        prefix = old_prefix;
+    }
     if (print_endl_)
         *os_ << std::endl;
 }
@@ -1856,6 +1896,14 @@ inline void ArgPrinter<volatile void* const>::print_arg()
         *os_ << " [" << enum_printer(arg_) << "]";
     if (const auto name = get_symbol_name(arg_); !name.empty())
         *os_ << " (" << name << ")";
+    if (recurse_ && bomb_detector(static_cast<const volatile std::byte*>(arg_), len_->get_ref()))
+    {
+        *os_ << std::endl;
+        const auto old_prefix = prefix;
+        prefix += "\t";
+        hexdump(*os_, arg_, len_->get_ref());
+        prefix = old_prefix;
+    }
     if (print_endl_)
         *os_ << std::endl;
 }
@@ -2014,6 +2062,14 @@ inline void ArgPrinter<const void* const>::print_arg()
         *os_ << " [" << enum_printer(arg_) << "]";
     if (const auto name = get_symbol_name(arg_); !name.empty())
         *os_ << " (" << name << ")";
+    if (recurse_ && bomb_detector(static_cast<const volatile std::byte*>(arg_), len_->get_ref()))
+    {
+        *os_ << std::endl;
+        const auto old_prefix = prefix;
+        prefix += "\t";
+        hexdump(*os_, arg_, len_->get_ref());
+        prefix = old_prefix;
+    }
     if (print_endl_)
         *os_ << std::endl;
 }
@@ -2174,6 +2230,14 @@ inline void ArgPrinter<const volatile void* const>::print_arg()
         *os_ << " [" << enum_printer(arg_) << "]";
     if (const auto name = get_symbol_name(arg_); !name.empty())
         *os_ << " (" << name << ")";
+    if (recurse_ && bomb_detector(static_cast<const volatile std::byte*>(arg_), len_->get_ref()))
+    {
+        *os_ << std::endl;
+        const auto old_prefix = prefix;
+        prefix += "\t";
+        hexdump(*os_, arg_, len_->get_ref());
+        prefix = old_prefix;
+    }
     if (print_endl_)
         *os_ << std::endl;
 }
