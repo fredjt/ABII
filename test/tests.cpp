@@ -16,6 +16,8 @@
     delete pi_args;                                             \
 }
 
+namespace
+{
 struct test_struct
 {
     bool a = BOOL_MAX;
@@ -50,8 +52,9 @@ std::ostream& operator<<(std::ostream& os, T&& obj)
     abii_args->push_arg(new abii::ArgPrinter(obj.l, "l", &os, RECURSE));
     OVERRIDE_STREAM_SUFFIX
 }
+}
 
-const char* va_func(const char* fmt, ...)
+static const char* va_func(const char* fmt, ...)
 {
     TRACE_LOGGER
     abii::prefix = "";
