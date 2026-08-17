@@ -18,7 +18,7 @@ thread_local std::ofstream abii_stream{
         const auto pid = std::to_string(getpid());
         const auto tid = std::to_string(gettid());
 
-        const auto logdir = std::string(getenv("HOME")) + "/abii_log";
+        const std::string logdir = getenv("ABII_LOGDIR");
         const auto fname = logdir + "/" + program_invocation_short_name + "_" + pid + "_" + tid + ".log";
 
         mkdir(logdir.c_str(), 0775);

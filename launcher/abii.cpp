@@ -179,6 +179,9 @@ int main(const int argc, char** argv)
     setenv("LD_PRELOAD", ld_preload.c_str(), 1);
     setenv("ABII_SYMS", symbols.c_str(), 1);
 
+    std::string abii_logdir = getenv("ABII_LOGDIR");
+    setenv("ABII_LOGDIR", abii_logdir.empty() ? "/tmp/abii_log" : abii_logdir.c_str(), 1);
+
 #ifndef NDEBUG
     std::cout << "LD_LIBRARY_PATH=" << ld_library_path << std::endl;
     std::cout << "LD_PRELOAD=" << ld_preload << std::endl;
