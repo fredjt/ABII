@@ -8,7 +8,7 @@
 #include <fstream>
 #include <sys/stat.h>
 
-#define LOG_DIR std::string(getenv("ABII_LOGDIR"))
+extern inline const std::string abii_logdir = getenv("ABII_LOGDIR") ? getenv("ABII_LOGDIR") : "/tmp/abii/abii_log";
 
 class Logger
 {
@@ -20,9 +20,9 @@ public:
 
     explicit Logger(const char* scope) : scope_(scope)
     {
-        mkdir("abii_log", 0775);
+        mkdir(abii_logdir.c_str(), 0775);
         if (!ofstream_.is_open())
-            ofstream_ = std::ofstream(LOG_DIR + "/###TRACE_LOG###.log", std::ios::app);
+            ofstream_ = std::ofstream(abii_logdir + "/###TRACE_LOG###.log", std::ios::app);
 
         ofstream_ << "Entering " << scope_ << std::endl;
     }

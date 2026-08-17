@@ -18,10 +18,9 @@ thread_local std::ofstream abii_stream{
         const auto pid = std::to_string(getpid());
         const auto tid = std::to_string(gettid());
 
-        const std::string logdir = getenv("ABII_LOGDIR");
-        const auto fname = logdir + "/" + program_invocation_short_name + "_" + pid + "_" + tid + ".log";
+        const auto fname = abii_logdir + "/" + program_invocation_short_name + "_" + pid + "_" + tid + ".log";
 
-        mkdir(logdir.c_str(), 0775);
+        mkdir(abii_logdir.c_str(), 0775);
         auto stream = std::ofstream(fname, std::ios::app);
         ENABLE_OVERRIDES
         return stream;

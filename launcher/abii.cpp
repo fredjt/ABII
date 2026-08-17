@@ -180,7 +180,8 @@ int main(const int argc, char** argv)
     setenv("ABII_SYMS", symbols.c_str(), 1);
 
     std::string abii_logdir = getenv("ABII_LOGDIR");
-    setenv("ABII_LOGDIR", abii_logdir.empty() ? "/tmp/abii_log" : abii_logdir.c_str(), 1);
+    // Keep this definition in sync with src/Logger.h
+    setenv("ABII_LOGDIR", abii_logdir.empty() ? "/tmp/abii/abii_log" : abii_logdir.c_str(), 1);
 
 #ifndef NDEBUG
     std::cout << "LD_LIBRARY_PATH=" << ld_library_path << std::endl;

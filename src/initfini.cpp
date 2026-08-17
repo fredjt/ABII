@@ -18,8 +18,7 @@ static void dump_memmaps()
     const auto pid = std::to_string(getpid());
     const auto tid = std::to_string(gettid());
 
-    const std::string logdir = getenv("ABII_LOGDIR");
-    const auto fname = logdir + "/" + program_invocation_short_name + "_" + pid + "_" + tid + ".maps";
+    const auto fname = abii_logdir + "/" + program_invocation_short_name + "_" + pid + "_" + tid + ".maps";
 
     auto map_logstream = std::ofstream(fname, std::ios::app);
     if (!map_logstream.is_open())
@@ -53,10 +52,9 @@ static void abii_destructor()
     const auto pid = std::to_string(getpid());
     const auto tid = std::to_string(gettid());
 
-    const std::string logdir = getenv("ABII_LOGDIR");
-    const auto fname = logdir + "/" + program_invocation_short_name + "_" + pid + "_" + tid + ".log";
+    const auto fname = abii_logdir + "/" + program_invocation_short_name + "_" + pid + "_" + tid + ".log";
 
-    mkdir(logdir.c_str(), 0775);
+    mkdir(abii_logdir.c_str(), 0775);
     auto stream = std::ofstream(fname, std::ios::app);
 
 #ifndef BIT32
