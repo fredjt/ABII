@@ -20,10 +20,13 @@
 static constexpr auto DATA_PATH = "/usr/share/abii/";
 static const auto PLUGIN_PATH = std::string(DATA_PATH) + "plugins/";
 static const auto SYMS_PATH = std::string(DATA_PATH) + "syms/";
-static const std::vector<std::string> ARCHS = {"32", "64"};
+static const std::vector<std::string> ARCHS32 = {"32", "64"};
+static const std::vector<std::string> ARCHS64 = {"64"};
 static constexpr auto TMPDIR = "/tmp/abii/";
 static constexpr auto HOOKS_LIB = "libabii_hooks.so";
 
+namespace
+{
 std::vector<std::string_view> splitStr(std::string_view str, const char sep = ' ')
 {
     std::vector<std::string_view> csv_v;
@@ -74,6 +77,7 @@ int get_elf_class(const char* lib_path)
 
     return ident[EI_CLASS];
 }
+}
 
 int main(const int argc, char** argv)
 {
@@ -83,6 +87,7 @@ int main(const int argc, char** argv)
 
     std::string plugin;
     std::string searchpath;
+    auto bit32 = false;
     std::string symbols;
     std::string program;
     std::vector<std::string> arguments;
@@ -93,6 +98,7 @@ int main(const int argc, char** argv)
     app.add_option("--searchpath", searchpath, "Additional colon-separated plugin search path");
     app.add_option("<plugin>", plugin, "Plugin from which to list syms")->required();
 
+    intercept_cmd->add_flag("--32", bit32, "Intercept 32 and 64 bit processes");
     intercept_cmd->add_option("<syms>", symbols, "Comma-separated list of symbols to be intercepted")->required();
     intercept_cmd->add_option("<program>", program, "The program to be captured")->required();
     intercept_cmd->add_option("<args>", arguments, "Arguments passed to <program>");
@@ -108,7 +114,7 @@ int main(const int argc, char** argv)
 
     std::vector<const char*> launch_args;
     launch_args.push_back(program.c_str());
-    for (const auto& arg : arguments)
+    for (const auto& arg: arguments)
         launch_args.push_back(arg.c_str());
 
     const char* old_ld_library_path = getenv("LD_LIBRARY_PATH");
@@ -119,7 +125,8 @@ int main(const int argc, char** argv)
     if (app.count("--searchpath"))
         ld_library_path += searchpath;
 
-    for (const auto& arch : ARCHS)
+    const std::vector<std::string> active_archs = bit32 ? ARCHS32 : ARCHS64;
+    for (const auto& arch: active_archs)
         ld_library_path += std::string(":") + TMPDIR + arch + "/:" + PLUGIN_PATH + arch + "/";
 
     std::string ld_preload = std::string(HOOKS_LIB) + ":lib" + plugin + ".so";
@@ -127,14 +134,14 @@ int main(const int argc, char** argv)
     const auto syms = splitStr(symbols, ',');
     const auto ld_lib_paths = splitStr(ld_library_path, ':');
 
-    for (const auto& arch : ARCHS)
+    for (const auto& arch: active_archs)
     {
         std::filesystem::path plugin_path;
-        for (const auto& path : ld_lib_paths)
+        for (const auto& path: ld_lib_paths)
         {
             const auto lib = std::string(path) + "/lib" + plugin + ".so";
             if (std::filesystem::exists(path) && ((arch == "32" && get_elf_class(lib.c_str()) == ELFCLASS32)
-                || (arch == "64" && get_elf_class(lib.c_str()) == ELFCLASS64)))
+                                                  || (arch == "64" && get_elf_class(lib.c_str()) == ELFCLASS64)))
             {
                 plugin_path = lib;
                 break;
@@ -147,7 +154,7 @@ int main(const int argc, char** argv)
         std::filesystem::create_directories(tmpdir.c_str());
 
         std::vector<std::string> objfiles;
-        for (const auto& sym : syms)
+        for (const auto& sym: syms)
         {
             const auto asmfile = tmpdir + std::string(sym) + ".S";
             processFile(std::string(DATA_PATH) + "asm-stubs/" + arch + "/stub-" + arch + ".S", asmfile, "@SYMBOL@",
@@ -160,7 +167,7 @@ int main(const int argc, char** argv)
         }
 
         std::stringstream objfiles_ss;
-        for (const auto& objfile : objfiles)
+        for (const auto& objfile: objfiles)
             objfiles_ss << objfile << " ";
 
         const auto sofile = tmpdir + HOOKS_LIB;
@@ -179,9 +186,9 @@ int main(const int argc, char** argv)
     setenv("LD_PRELOAD", ld_preload.c_str(), 1);
     setenv("ABII_SYMS", symbols.c_str(), 1);
 
-    std::string abii_logdir = getenv("ABII_LOGDIR");
+    const char* abii_logdir = getenv("ABII_LOGDIR");
     // Keep this definition in sync with src/Logger.h
-    setenv("ABII_LOGDIR", abii_logdir.empty() ? "/tmp/abii/abii_log" : abii_logdir.c_str(), 1);
+    setenv("ABII_LOGDIR", abii_logdir == nullptr ? "/tmp/abii/abii_log" : abii_logdir, 1);
 
 #ifndef NDEBUG
     std::cout << "LD_LIBRARY_PATH=" << ld_library_path << std::endl;
