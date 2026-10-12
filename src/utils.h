@@ -132,8 +132,8 @@ inline void hexdump(std::ostream& os, const volatile void* data, const std::size
 
         for (std::size_t j = 0; j < width && i + j < size; ++j)
         {
-            const unsigned c = std::to_integer<unsigned>(bytes[i + j]);
-            os << (std::isprint(c) ? static_cast<char>(c) : '.');
+            const auto c = std::to_integer<unsigned>(bytes[i + j]);
+            os << (std::isprint(static_cast<char>(c)) ? static_cast<char>(c) : '.');
         }
 
         os << '|';

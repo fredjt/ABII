@@ -21,11 +21,10 @@ struct ArgPrinter<Ret(*)(Args...)>final : VirtArgPrinter
     typedef Ret (*ArgPrinterFunc)(Args...);
 
     explicit ArgPrinter(ArgPrinterFunc& arg, const std::string& name = "", std::ostream* os = &abii_stream,
-                        const int flags = 1) : arg_(arg), name_(name), print_endl_(flags & PRINT_ENDL), os_(os) {}
+                        const int flags = 1) : arg_(arg), name_(name), os_(os) {}
 
     explicit ArgPrinter(ArgPrinterFunc&& arg, const std::string& name = "", std::ostream* os = &abii_stream,
-                        const int flags = 1) : arg_(rval_arg_), rval_arg_(arg), name_(name),
-                                               print_endl_(flags & PRINT_ENDL), os_(os) {}
+                        const int flags = 1) : arg_(rval_arg_), rval_arg_(arg), name_(name), os_(os) {}
 
     [[nodiscard]] std::string get_name() const override { return name_; }
     void set_name(const std::string& name) override { name_ = name; }
@@ -51,8 +50,6 @@ struct ArgPrinter<Ret(*)(Args...)>final : VirtArgPrinter
         });
     }
 
-    [[nodiscard]] bool get_print_endl() const override { return print_endl_; }
-    void set_print_endl(const bool print_endl) override { print_endl_ = print_endl; }
     [[nodiscard]] std::ostream* get_os() const override { return os_; }
     void set_os(std::ostream* os) override { os_ = os; }
 
@@ -68,8 +65,7 @@ struct ArgPrinter<Ret(*)(Args...)>final : VirtArgPrinter
     ArgPrinter(ArgPrinterFunc& arg, const std::string& name, const size_t previous_depth,
                const std::map<size_t, std::function<std::string(const void*)>>& enum_printers,
                std::ostream* os = &abii_stream, const int flags = 1)
-        : arg_(arg), name_(name), enum_printers_(enum_printers), depth_(previous_depth + 1),
-          print_endl_(flags & PRINT_ENDL), os_(os) {}
+        : arg_(arg), name_(name), enum_printers_(enum_printers), depth_(previous_depth + 1), os_(os) {}
 
 private:
     ArgPrinterFunc& arg_;
@@ -77,7 +73,6 @@ private:
     std::string name_{};
     std::map<size_t, std::function<std::string(const void*)>> enum_printers_;
     size_t depth_ = 0;
-    bool print_endl_ = true;
     std::ostream* os_;
 };
 
@@ -95,11 +90,10 @@ struct ArgPrinter<Ret(* const)(Args...)>final : VirtArgPrinter
     typedef Ret (*ArgPrinterFunc)(Args...);
 
     explicit ArgPrinter(ArgPrinterFunc const& arg, const std::string& name = "", std::ostream* os = &abii_stream,
-                        const int flags = 1) : arg_(arg), name_(name), print_endl_(flags & PRINT_ENDL), os_(os) {}
+                        const int flags = 1) : arg_(arg), name_(name), os_(os) {}
 
     explicit ArgPrinter(ArgPrinterFunc const&& arg, const std::string& name = "", std::ostream* os = &abii_stream,
-                        const int flags = 1) : arg_(rval_arg_), rval_arg_(arg), name_(name),
-                                               print_endl_(flags & PRINT_ENDL), os_(os) {}
+                        const int flags = 1) : arg_(rval_arg_), rval_arg_(arg), name_(name), os_(os) {}
 
     [[nodiscard]] std::string get_name() const override { return name_; }
     void set_name(const std::string& name) override { name_ = name; }
@@ -125,8 +119,6 @@ struct ArgPrinter<Ret(* const)(Args...)>final : VirtArgPrinter
         });
     }
 
-    [[nodiscard]] bool get_print_endl() const override { return print_endl_; }
-    void set_print_endl(const bool print_endl) override { print_endl_ = print_endl; }
     [[nodiscard]] std::ostream* get_os() const override { return os_; }
     void set_os(std::ostream* os) override { os_ = os; }
 
@@ -142,8 +134,7 @@ struct ArgPrinter<Ret(* const)(Args...)>final : VirtArgPrinter
     ArgPrinter(ArgPrinterFunc const& arg, const std::string& name, const size_t previous_depth,
                const std::map<size_t, std::function<std::string(const void*)>>& enum_printers,
                std::ostream* os = &abii_stream, const int flags = 1)
-        : arg_(arg), name_(name), enum_printers_(enum_printers), depth_(previous_depth + 1),
-          print_endl_(flags & PRINT_ENDL), os_(os) {}
+        : arg_(arg), name_(name), enum_printers_(enum_printers), depth_(previous_depth + 1), os_(os) {}
 
 private:
     ArgPrinterFunc const& arg_;
@@ -151,7 +142,6 @@ private:
     std::string name_{};
     std::map<size_t, std::function<std::string(const void*)>> enum_printers_;
     size_t depth_ = 0;
-    bool print_endl_ = true;
     std::ostream* os_;
 };
 
@@ -161,13 +151,13 @@ private:
 template <typename Ret, typename... Args>
 void ArgPrinter<Ret(*)(Args...)>::print_arg()
 {
-    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << reinterpret_cast<void*>(arg_);
+    prefix += '\t';
+    *os_ << std::endl << prefix << name_ << ": (" << get_type(arg_) << ") " << reinterpret_cast<void*>(arg_);
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
     if (const auto name = get_symbol_name(reinterpret_cast<void*>(arg_)); !name.empty())
         *os_ << " (" << name << ")";
-    if (print_endl_)
-        *os_ << std::endl;
+    prefix.pop_back();
 }
 
 /**
@@ -176,13 +166,13 @@ void ArgPrinter<Ret(*)(Args...)>::print_arg()
 template <typename Ret, typename... Args>
 void ArgPrinter<Ret(* const)(Args...)>::print_arg()
 {
-    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << reinterpret_cast<void*>(arg_);
+    prefix += '\t';
+    *os_ << std::endl << prefix << name_ << ": (" << get_type(arg_) << ") " << reinterpret_cast<void*>(arg_);
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
     if (const auto name = get_symbol_name(reinterpret_cast<void*>(arg_)); !name.empty())
         *os_ << " (" << name << ")";
-    if (print_endl_)
-        *os_ << std::endl;
+    prefix.pop_back();
 }
 }
 

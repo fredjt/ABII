@@ -60,7 +60,7 @@ static const char* va_func(const char* fmt, ...)
     abii::prefix = "";
     const auto abii_args = new abii::ArgsPrinter();
     va_list abii_vargs;
-    abii::pre_fmtd_str str = "va_func(fmt, ...)";
+    abii::funcname_str str = "va_func(fmt, ...)";
     abii_args->push_func(new abii::ArgPrinter(str, "", &std::cout));
 
     abii_args->push_arg(new abii::ArgPrinter(fmt, "__fmt", &std::cout));

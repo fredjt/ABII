@@ -20,11 +20,10 @@ template <typename T>
 struct ArgPrinter<T*>final : VirtArgPrinter
 {
     explicit ArgPrinter(T*& arg, const std::string& name = "", std::ostream* os = &abii_stream, const int flags = 3) :
-        arg_(arg), name_(name), print_endl_(flags & PRINT_ENDL), recurse_(flags & RECURSE), os_(os) {}
+        arg_(arg), name_(name), recurse_(flags & RECURSE), os_(os) {}
 
     explicit ArgPrinter(T*&& arg, const std::string& name = "", std::ostream* os = &abii_stream, const int flags = 3) :
-        arg_(rval_arg_), rval_arg_(arg), name_(name), print_endl_(flags & PRINT_ENDL), recurse_(flags & RECURSE),
-        os_(os) {}
+        arg_(rval_arg_), rval_arg_(arg), name_(name), recurse_(flags & RECURSE), os_(os) {}
 
     ~ArgPrinter() override = default;
 
@@ -88,8 +87,6 @@ struct ArgPrinter<T*>final : VirtArgPrinter
         va_list_printer_buf_size_ = size;
     }
 
-    [[nodiscard]] bool get_print_endl() const override { return print_endl_; }
-    void set_print_endl(const bool print_endl) override { print_endl_ = print_endl; }
     [[nodiscard]] bool get_recurse() const { return recurse_; }
     void set_recurse(const bool recurse) { recurse_ = recurse; }
     [[nodiscard]] std::ostream* get_os() const override { return os_; }
@@ -108,7 +105,7 @@ struct ArgPrinter<T*>final : VirtArgPrinter
                const std::map<size_t, std::function<std::string(const void*)>>& enum_printers,
                std::ostream* os = &abii_stream, const int flags = 1)
         : arg_(arg), name_(name), enum_printers_(enum_printers), depth_(previous_depth + 1),
-          print_endl_(flags & PRINT_ENDL), recurse_(flags & RECURSE), os_(os) {}
+          recurse_(flags & RECURSE), os_(os) {}
 
 private:
     T*& arg_;
@@ -121,7 +118,6 @@ private:
     std::map<size_t, std::function<std::string(const char*, va_list, size_t)>> va_list_printers_;
     size_t va_list_printer_buf_size_ = 0;
     size_t depth_ = 0;
-    bool print_endl_ = true;
     bool recurse_ = true;
     std::ostream* os_;
     static size_t def_len_;
@@ -141,12 +137,12 @@ template <typename T>
 struct ArgPrinter<volatile T*>final : VirtArgPrinter
 {
     explicit ArgPrinter(volatile T*& arg, const std::string& name = "", std::ostream* os = &abii_stream,
-                        const int flags = 3) : arg_(arg), name_(name), print_endl_(flags & PRINT_ENDL),
+                        const int flags = 3) : arg_(arg), name_(name),
                                                recurse_(flags & RECURSE), os_(os) {}
 
     explicit ArgPrinter(volatile T*&& arg, const std::string& name = "", std::ostream* os = &abii_stream,
                         const int flags = 3) : arg_(rval_arg_), rval_arg_(arg), name_(name),
-                                               print_endl_(flags & PRINT_ENDL), recurse_(flags & RECURSE), os_(os) {}
+                                               recurse_(flags & RECURSE), os_(os) {}
 
     ~ArgPrinter() override = default;
 
@@ -188,8 +184,6 @@ struct ArgPrinter<volatile T*>final : VirtArgPrinter
         });
     }
 
-    [[nodiscard]] bool get_print_endl() const override { return print_endl_; }
-    void set_print_endl(const bool print_endl) override { print_endl_ = print_endl; }
     [[nodiscard]] bool get_recurse() const { return recurse_; }
     void set_recurse(const bool recurse) { recurse_ = recurse; }
     [[nodiscard]] std::ostream* get_os() const override { return os_; }
@@ -208,7 +202,7 @@ struct ArgPrinter<volatile T*>final : VirtArgPrinter
                const std::map<size_t, std::function<std::string(const volatile void*)>>& enum_printers,
                std::ostream* os = &abii_stream, const int flags = 1)
         : arg_(arg), name_(name), enum_printers_(enum_printers), depth_(previous_depth + 1),
-          print_endl_(flags & PRINT_ENDL), recurse_(flags & RECURSE), os_(os) {}
+          recurse_(flags & RECURSE), os_(os) {}
 
 private:
     volatile T*& arg_;
@@ -218,7 +212,6 @@ private:
     std::function<bool(size_t)> end_test_ = [&](const int i) { return i < len_->get_ref(); };
     std::map<size_t, std::function<std::string(const volatile void*)>> enum_printers_;
     size_t depth_ = 0;
-    bool print_endl_ = true;
     bool recurse_ = true;
     std::ostream* os_;
     static size_t def_len_;
@@ -238,12 +231,12 @@ template <typename T>
 struct ArgPrinter<const T*>final : VirtArgPrinter
 {
     explicit ArgPrinter(const T*& arg, const std::string& name = "", std::ostream* os = &abii_stream,
-                        const int flags = 3) : arg_(arg), name_(name), print_endl_(flags & PRINT_ENDL),
+                        const int flags = 3) : arg_(arg), name_(name),
                                                recurse_(flags & RECURSE), os_(os) {}
 
     explicit ArgPrinter(const T*&& arg, const std::string& name = "", std::ostream* os = &abii_stream,
                         const int flags = 3) : arg_(rval_arg_), rval_arg_(arg), name_(name),
-                                               print_endl_(flags & PRINT_ENDL), recurse_(flags & RECURSE), os_(os) {}
+                                               recurse_(flags & RECURSE), os_(os) {}
 
     ~ArgPrinter() override = default;
 
@@ -281,8 +274,6 @@ struct ArgPrinter<const T*>final : VirtArgPrinter
         });
     }
 
-    [[nodiscard]] bool get_print_endl() const override { return print_endl_; }
-    void set_print_endl(const bool print_endl) override { print_endl_ = print_endl; }
     [[nodiscard]] bool get_recurse() const { return recurse_; }
     void set_recurse(const bool recurse) { recurse_ = recurse; }
     [[nodiscard]] std::ostream* get_os() const override { return os_; }
@@ -301,7 +292,7 @@ struct ArgPrinter<const T*>final : VirtArgPrinter
                const std::map<size_t, std::function<std::string(const void*)>>& enum_printers,
                std::ostream* os = &abii_stream, const int flags = 1)
         : arg_(arg), name_(name), enum_printers_(enum_printers), depth_(previous_depth + 1),
-          print_endl_(flags & PRINT_ENDL), recurse_(flags & RECURSE), os_(os) {}
+          recurse_(flags & RECURSE), os_(os) {}
 
 private:
     const T*& arg_;
@@ -311,7 +302,6 @@ private:
     std::function<bool(size_t)> end_test_ = [&](const int i) { return i < len_->get_ref(); };
     std::map<size_t, std::function<std::string(const void*)>> enum_printers_;
     size_t depth_ = 0;
-    bool print_endl_ = true;
     bool recurse_ = true;
     std::ostream* os_;
     static size_t def_len_;
@@ -331,12 +321,12 @@ template <typename T>
 struct ArgPrinter<const volatile T*>final : VirtArgPrinter
 {
     explicit ArgPrinter(const volatile T*& arg, const std::string& name = "", std::ostream* os = &abii_stream,
-                        const int flags = 3) : arg_(arg), name_(name), print_endl_(flags & PRINT_ENDL),
+                        const int flags = 3) : arg_(arg), name_(name),
                                                recurse_(flags & RECURSE), os_(os) {}
 
     explicit ArgPrinter(const volatile T*&& arg, const std::string& name = "", std::ostream* os = &abii_stream,
                         const int flags = 3) : arg_(rval_arg_), rval_arg_(arg), name_(name),
-                                               print_endl_(flags & PRINT_ENDL), recurse_(flags & RECURSE), os_(os) {}
+                                               recurse_(flags & RECURSE), os_(os) {}
 
     ~ArgPrinter() override = default;
 
@@ -378,8 +368,6 @@ struct ArgPrinter<const volatile T*>final : VirtArgPrinter
         });
     }
 
-    [[nodiscard]] bool get_print_endl() const override { return print_endl_; }
-    void set_print_endl(const bool print_endl) override { print_endl_ = print_endl; }
     [[nodiscard]] bool get_recurse() const { return recurse_; }
     void set_recurse(const bool recurse) { recurse_ = recurse; }
     [[nodiscard]] std::ostream* get_os() const override { return os_; }
@@ -398,7 +386,7 @@ struct ArgPrinter<const volatile T*>final : VirtArgPrinter
                const std::map<size_t, std::function<std::string(const volatile void*)>>& enum_printers,
                std::ostream* os = &abii_stream, const int flags = 1)
         : arg_(arg), name_(name), enum_printers_(enum_printers), depth_(previous_depth + 1),
-          print_endl_(flags & PRINT_ENDL), recurse_(flags & RECURSE), os_(os) {}
+          recurse_(flags & RECURSE), os_(os) {}
 
 private:
     const volatile T*& arg_;
@@ -408,7 +396,6 @@ private:
     std::function<bool(size_t)> end_test_ = [&](const int i) { return i < len_->get_ref(); };
     std::map<size_t, std::function<std::string(const volatile void*)>> enum_printers_;
     size_t depth_ = 0;
-    bool print_endl_ = true;
     bool recurse_ = true;
     std::ostream* os_;
     static size_t def_len_;
@@ -428,12 +415,12 @@ template <typename T>
 struct ArgPrinter<T* const>final : VirtArgPrinter
 {
     explicit ArgPrinter(T* const& arg, const std::string& name = "", std::ostream* os = &abii_stream,
-                        const int flags = 3) : arg_(arg), name_(name), print_endl_(flags & PRINT_ENDL),
+                        const int flags = 3) : arg_(arg), name_(name),
                                                recurse_(flags & RECURSE), os_(os) {}
 
     explicit ArgPrinter(T* const&& arg, const std::string& name = "", std::ostream* os = &abii_stream,
                         const int flags = 3) : arg_(rval_arg_), rval_arg_(arg), name_(name),
-                                               print_endl_(flags & PRINT_ENDL), recurse_(flags & RECURSE), os_(os) {}
+                                               recurse_(flags & RECURSE), os_(os) {}
 
     ~ArgPrinter() override = default;
 
@@ -471,8 +458,6 @@ struct ArgPrinter<T* const>final : VirtArgPrinter
         });
     }
 
-    [[nodiscard]] bool get_print_endl() const override { return print_endl_; }
-    void set_print_endl(const bool print_endl) override { print_endl_ = print_endl; }
     [[nodiscard]] bool get_recurse() const { return recurse_; }
     void set_recurse(const bool recurse) { recurse_ = recurse; }
     [[nodiscard]] std::ostream* get_os() const override { return os_; }
@@ -491,7 +476,7 @@ struct ArgPrinter<T* const>final : VirtArgPrinter
                const std::map<size_t, std::function<std::string(const void*)>>& enum_printers,
                std::ostream* os = &abii_stream, const int flags = 1)
         : arg_(arg), name_(name), enum_printers_(enum_printers), depth_(previous_depth + 1),
-          print_endl_(flags & PRINT_ENDL), recurse_(flags & RECURSE), os_(os) {}
+          recurse_(flags & RECURSE), os_(os) {}
 
 private:
     T* const& arg_;
@@ -501,7 +486,6 @@ private:
     std::function<bool(size_t)> end_test_ = [&](const int i) { return i < len_->get_ref(); };
     std::map<size_t, std::function<std::string(const void*)>> enum_printers_;
     size_t depth_ = 0;
-    bool print_endl_ = true;
     bool recurse_ = true;
     std::ostream* os_ = &abii_stream;
     static size_t def_len_;
@@ -521,12 +505,12 @@ template <typename T>
 struct ArgPrinter<volatile T* const>final : VirtArgPrinter
 {
     explicit ArgPrinter(volatile T* const& arg, const std::string& name = "", std::ostream* os = &abii_stream,
-                        const int flags = 3) : arg_(arg), name_(name), print_endl_(flags & PRINT_ENDL),
+                        const int flags = 3) : arg_(arg), name_(name),
                                                recurse_(flags & RECURSE), os_(os) {}
 
     explicit ArgPrinter(volatile T* const&& arg, const std::string& name = "", std::ostream* os = &abii_stream,
                         const int flags = 3) : arg_(rval_arg_), rval_arg_(arg), name_(name),
-                                               print_endl_(flags & PRINT_ENDL), recurse_(flags & RECURSE), os_(os) {}
+                                               recurse_(flags & RECURSE), os_(os) {}
 
     ~ArgPrinter() override = default;
 
@@ -568,8 +552,6 @@ struct ArgPrinter<volatile T* const>final : VirtArgPrinter
         });
     }
 
-    [[nodiscard]] bool get_print_endl() const override { return print_endl_; }
-    void set_print_endl(const bool print_endl) override { print_endl_ = print_endl; }
     [[nodiscard]] bool get_recurse() const { return recurse_; }
     void set_recurse(const bool recurse) { recurse_ = recurse; }
     [[nodiscard]] std::ostream* get_os() const override { return os_; }
@@ -588,7 +570,7 @@ struct ArgPrinter<volatile T* const>final : VirtArgPrinter
                const std::map<size_t, std::function<std::string(const volatile void*)>>& enum_printers,
                std::ostream* os = &abii_stream, const int flags = 1)
         : arg_(arg), name_(name), enum_printers_(enum_printers), depth_(previous_depth + 1),
-          print_endl_(flags & PRINT_ENDL), recurse_(flags & RECURSE), os_(os) {}
+          recurse_(flags & RECURSE), os_(os) {}
 
 private:
     volatile T* const& arg_;
@@ -598,7 +580,6 @@ private:
     std::function<bool(size_t)> end_test_ = [&](const int i) { return i < len_->get_ref(); };
     std::map<size_t, std::function<std::string(const volatile void*)>> enum_printers_;
     size_t depth_ = 0;
-    bool print_endl_ = true;
     bool recurse_ = true;
     std::ostream* os_ = &abii_stream;
     static size_t def_len_;
@@ -618,12 +599,12 @@ template <typename T>
 struct ArgPrinter<const T* const>final : VirtArgPrinter
 {
     explicit ArgPrinter(const T* const& arg, const std::string& name = "", std::ostream* os = &abii_stream,
-                        const int flags = 3) : arg_(arg), name_(name), print_endl_(flags & PRINT_ENDL),
+                        const int flags = 3) : arg_(arg), name_(name),
                                                recurse_(flags & RECURSE), os_(os) {}
 
     explicit ArgPrinter(const T* const&& arg, const std::string& name = "", std::ostream* os = &abii_stream,
                         const int flags = 3) : arg_(rval_arg_), rval_arg_(arg), name_(name),
-                                               print_endl_(flags & PRINT_ENDL), recurse_(flags & RECURSE), os_(os) {}
+                                               recurse_(flags & RECURSE), os_(os) {}
 
     ~ArgPrinter() override = default;
 
@@ -661,8 +642,6 @@ struct ArgPrinter<const T* const>final : VirtArgPrinter
         });
     }
 
-    [[nodiscard]] bool get_print_endl() const override { return print_endl_; }
-    void set_print_endl(const bool print_endl) override { print_endl_ = print_endl; }
     [[nodiscard]] bool get_recurse() const { return recurse_; }
     void set_recurse(const bool recurse) { recurse_ = recurse; }
     [[nodiscard]] std::ostream* get_os() const override { return os_; }
@@ -681,7 +660,7 @@ struct ArgPrinter<const T* const>final : VirtArgPrinter
                const std::map<size_t, std::function<std::string(const void*)>>& enum_printers,
                std::ostream* os = &abii_stream, const int flags = 1)
         : arg_(arg), name_(name), enum_printers_(enum_printers), depth_(previous_depth + 1),
-          print_endl_(flags & PRINT_ENDL), recurse_(flags & RECURSE), os_(os) {}
+          recurse_(flags & RECURSE), os_(os) {}
 
 private:
     const T* const& arg_;
@@ -691,7 +670,6 @@ private:
     std::function<bool(size_t)> end_test_ = [&](const int i) { return i < len_->get_ref(); };
     std::map<size_t, std::function<std::string(const void*)>> enum_printers_;
     size_t depth_ = 0;
-    bool print_endl_ = true;
     bool recurse_ = true;
     std::ostream* os_ = &abii_stream;
     static size_t def_len_;
@@ -711,12 +689,12 @@ template <typename T>
 struct ArgPrinter<const volatile T* const>final : VirtArgPrinter
 {
     explicit ArgPrinter(const volatile T* const& arg, const std::string& name = "", std::ostream* os = &abii_stream,
-                        const int flags = 3) : arg_(arg), name_(name), print_endl_(flags & PRINT_ENDL),
+                        const int flags = 3) : arg_(arg), name_(name),
                                                recurse_(flags & RECURSE), os_(os) {}
 
     explicit ArgPrinter(const volatile T* const&& arg, const std::string& name = "", std::ostream* os = &abii_stream,
                         const int flags = 3) : arg_(rval_arg_), rval_arg_(arg), name_(name),
-                                               print_endl_(flags & PRINT_ENDL), recurse_(flags & RECURSE), os_(os) {}
+                                               recurse_(flags & RECURSE), os_(os) {}
 
     ~ArgPrinter() override = default;
 
@@ -758,8 +736,6 @@ struct ArgPrinter<const volatile T* const>final : VirtArgPrinter
         });
     }
 
-    [[nodiscard]] bool get_print_endl() const override { return print_endl_; }
-    void set_print_endl(const bool print_endl) override { print_endl_ = print_endl; }
     [[nodiscard]] bool get_recurse() const { return recurse_; }
     void set_recurse(const bool recurse) { recurse_ = recurse; }
     [[nodiscard]] std::ostream* get_os() const override { return os_; }
@@ -778,7 +754,7 @@ struct ArgPrinter<const volatile T* const>final : VirtArgPrinter
                const std::map<size_t, std::function<std::string(const volatile void*)>>& enum_printers,
                std::ostream* os = &abii_stream, const int flags = 1)
         : arg_(arg), name_(name), enum_printers_(enum_printers), depth_(previous_depth + 1),
-          print_endl_(flags & PRINT_ENDL), recurse_(flags & RECURSE), os_(os) {}
+          recurse_(flags & RECURSE), os_(os) {}
 
 private:
     const volatile T* const& arg_;
@@ -788,7 +764,6 @@ private:
     std::function<bool(size_t)> end_test_ = [&](const int i) { return i < len_->get_ref(); };
     std::map<size_t, std::function<std::string(const volatile void*)>> enum_printers_;
     size_t depth_ = 0;
-    bool print_endl_ = true;
     bool recurse_ = true;
     std::ostream* os_ = &abii_stream;
     static size_t def_len_;
@@ -809,18 +784,16 @@ size_t ArgPrinter<const volatile T* const>::def_len_ = 0;
 template <typename T>
 void ArgPrinter<T*>::print_arg()
 {
-    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<void*>(arg_);
+    prefix += '\t';
+    *os_ << std::endl << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<void*>(arg_);
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
     if (const auto name = get_symbol_name(static_cast<void*>(arg_)); !name.empty())
         *os_ << " (" << name << ")";
     if (recurse_ && bomb_detector(arg_, len_->get_ref()))
     {
-        *os_ << std::endl;
-        const auto old_prefix = prefix;
-        prefix += "\t";
         if (std::ranges::find(used_addrs, reinterpret_cast<uintptr_t>(arg_)) != used_addrs.end())
-            *os_ << prefix << "[RECURSION]";
+            *os_ << std::endl << prefix << "[RECURSION]";
         else
         {
             used_addrs.push_back(reinterpret_cast<uintptr_t>(arg_));
@@ -830,24 +803,17 @@ void ArgPrinter<T*>::print_arg()
                     std::stringstream ss;
                     ss << name_ << "[" << i << "]";
                     const auto next = new ArgPrinter<T>(arg_[i], ss.str(), depth_, enum_printers_, os_);
-                    if (!end_test_(i + 1))
-                        next->set_print_endl(false);
-
                     next->print_arg();
                 }
             else
             {
                 const auto next = new ArgPrinter<T>(*arg_, "*" + name_, depth_, enum_printers_, os_);
-                next->set_print_endl(false);
-
                 next->print_arg();
             }
             used_addrs.pop_back();
         }
-        prefix = old_prefix;
     }
-    if (print_endl_)
-        *os_ << std::endl;
+    prefix.pop_back();
 }
 
 /**
@@ -856,19 +822,15 @@ void ArgPrinter<T*>::print_arg()
 template <>
 inline void ArgPrinter<char*>::print_arg()
 {
-    *os_ << prefix << name_ << ": (" << get_type(arg_) << ")";
+    prefix += '\t';
+    *os_ << std::endl << prefix << name_ << ": (" << get_type(arg_) << ")";
 #ifdef BIT32
     if (!fmt_.empty())
     {
-        const auto old_prefix = prefix;
-        prefix += "\t";
         std::stringstream ss;
         ss << va_list_printer(fmt_.c_str(), arg_, va_list_printer_buf_size_);
-        prefix = old_prefix;
         std::string str = ss.str();
-        if (!str.empty() && !print_endl_)
-            str.pop_back();
-        *os_ << std::endl << str;
+        *os_ << str;
     }
     else
     {
@@ -888,11 +850,8 @@ inline void ArgPrinter<char*>::print_arg()
         *os_ << " {" << arg << "}";
         if (recurse_)
         {
-            *os_ << std::endl;
-            const auto old_prefix = prefix;
-            prefix += "\t";
             if (std::ranges::find(used_addrs, reinterpret_cast<uintptr_t>(arg_)) != used_addrs.end())
-                *os_ << prefix << "[RECURSION]";
+                *os_ << std::endl << prefix << "[RECURSION]";
             else
             {
                 used_addrs.push_back(reinterpret_cast<uintptr_t>(arg_));
@@ -902,20 +861,16 @@ inline void ArgPrinter<char*>::print_arg()
                     ss << name_ << "[" << i << "]";
                     const auto next = new ArgPrinter<char>(arg_[i], ss.str(), depth_, enum_printers_, os_);
                     if (i == len_->get_ref() - 1 || (len_->get_ref() == 0 && arg_[i] == 0))
-                        next->set_print_endl(false);
-
-                    next->print_arg();
+                        next->print_arg();
                 }
                 used_addrs.pop_back();
             }
-            prefix = old_prefix;
         }
     }
-    if (print_endl_)
-        *os_ << std::endl;
 #ifdef BIT32
     }
 #endif
+    prefix.pop_back();
 }
 
 /**
@@ -924,7 +879,8 @@ inline void ArgPrinter<char*>::print_arg()
 template <>
 inline void ArgPrinter<wchar_t*>::print_arg()
 {
-    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<void*>(arg_);
+    prefix += '\t';
+    *os_ << std::endl << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<void*>(arg_);
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
     if (const auto name = get_symbol_name(arg_); !name.empty())
@@ -936,11 +892,8 @@ inline void ArgPrinter<wchar_t*>::print_arg()
         *os_ << " {" << arg << "}";
         if (recurse_)
         {
-            *os_ << std::endl;
-            const auto old_prefix = prefix;
-            prefix += "\t";
             if (std::ranges::find(used_addrs, reinterpret_cast<uintptr_t>(arg_)) != used_addrs.end())
-                *os_ << prefix << "[RECURSION]";
+                *os_ << std::endl << prefix << "[RECURSION]";
             else
             {
                 used_addrs.push_back(reinterpret_cast<uintptr_t>(arg_));
@@ -949,18 +902,13 @@ inline void ArgPrinter<wchar_t*>::print_arg()
                     std::stringstream ss;
                     ss << name_ << "[" << i << "]";
                     const auto next = new ArgPrinter<wchar_t>(arg_[i], ss.str(), depth_, enum_printers_, os_);
-                    if (i == len_->get_ref() - 1 || (len_->get_ref() == 0 && arg_[i] == 0))
-                        next->set_print_endl(false);
-
                     next->print_arg();
                 }
                 used_addrs.pop_back();
             }
-            prefix = old_prefix;
         }
     }
-    if (print_endl_)
-        *os_ << std::endl;
+    prefix.pop_back();
 }
 
 /**
@@ -969,13 +917,13 @@ inline void ArgPrinter<wchar_t*>::print_arg()
 template <>
 inline void ArgPrinter<FILE*>::print_arg()
 {
-    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << arg_;
+    prefix += '\t';
+    *os_ << std::endl << prefix << name_ << ": (" << get_type(arg_) << ") " << arg_;
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
     if (const auto name = get_symbol_name(arg_); !name.empty())
         *os_ << " (" << name << ")";
-    if (print_endl_)
-        *os_ << std::endl;
+    prefix.pop_back();
 }
 
 /**
@@ -984,13 +932,13 @@ inline void ArgPrinter<FILE*>::print_arg()
 template <>
 inline void ArgPrinter<DIR*>::print_arg()
 {
-    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << arg_;
+    prefix += '\t';
+    *os_ << std::endl << prefix << name_ << ": (" << get_type(arg_) << ") " << arg_;
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
     if (const auto name = get_symbol_name(arg_); !name.empty())
         *os_ << " (" << name << ")";
-    if (print_endl_)
-        *os_ << std::endl;
+    prefix.pop_back();
 }
 
 /**
@@ -999,21 +947,19 @@ inline void ArgPrinter<DIR*>::print_arg()
 template <>
 inline void ArgPrinter<void*>::print_arg()
 {
-    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << arg_;
+    prefix += '\t';
+    *os_ << std::endl << prefix << name_ << ": (" << get_type(arg_) << ") " << arg_;
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
     if (const auto name = get_symbol_name(arg_); !name.empty())
         *os_ << " (" << name << ")";
-    if (recurse_ && bomb_detector(static_cast<const volatile std::byte*>(arg_), len_->get_ref()))
+    if (recurse_ && len_->get_ref() != 0 &&
+        bomb_detector(static_cast<const volatile std::byte*>(arg_), len_->get_ref()))
     {
         *os_ << std::endl;
-        const auto old_prefix = prefix;
-        prefix += "\t";
         hexdump(*os_, arg_, len_->get_ref());
-        prefix = old_prefix;
     }
-    if (print_endl_)
-        *os_ << std::endl;
+    prefix.pop_back();
 }
 
 /*
@@ -1028,18 +974,16 @@ inline void ArgPrinter<void*>::print_arg()
 template <typename T>
 void ArgPrinter<volatile T*>::print_arg()
 {
-    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<volatile void*>(arg_);
+    prefix += '\t';
+    *os_ << std::endl << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<volatile void*>(arg_);
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
     if (const auto name = get_symbol_name(static_cast<volatile void*>(arg_)); !name.empty())
         *os_ << " (" << name << ")";
     if (recurse_ && bomb_detector(arg_, len_->get_ref()))
     {
-        *os_ << std::endl;
-        const auto old_prefix = prefix;
-        prefix += "\t";
         if (std::ranges::find(used_addrs, reinterpret_cast<uintptr_t>(arg_)) != used_addrs.end())
-            *os_ << prefix << "[RECURSION]";
+            *os_ << std::endl << prefix << "[RECURSION]";
         else
         {
             used_addrs.push_back(reinterpret_cast<uintptr_t>(arg_));
@@ -1049,24 +993,17 @@ void ArgPrinter<volatile T*>::print_arg()
                     std::stringstream ss;
                     ss << name_ << "[" << i << "]";
                     const auto next = new ArgPrinter<volatile T>(arg_[i], ss.str(), depth_, enum_printers_, os_);
-                    if (!end_test_(i + 1))
-                        next->set_print_endl(false);
-
                     next->print_arg();
                 }
             else
             {
                 const auto next = new ArgPrinter<volatile T>(*arg_, "*" + name_, depth_, enum_printers_, os_);
-                next->set_print_endl(false);
-
                 next->print_arg();
             }
             used_addrs.pop_back();
         }
-        prefix = old_prefix;
     }
-    if (print_endl_)
-        *os_ << std::endl;
+    prefix.pop_back();
 }
 
 /**
@@ -1075,7 +1012,8 @@ void ArgPrinter<volatile T*>::print_arg()
 template <>
 inline void ArgPrinter<volatile char*>::print_arg()
 {
-    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<volatile void*>(arg_);
+    prefix += '\t';
+    *os_ << std::endl << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<volatile void*>(arg_);
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
     if (const auto name = get_symbol_name(arg_); !name.empty())
@@ -1087,11 +1025,8 @@ inline void ArgPrinter<volatile char*>::print_arg()
         *os_ << " {" << arg << "}";
         if (recurse_)
         {
-            *os_ << std::endl;
-            const auto old_prefix = prefix;
-            prefix += "\t";
             if (std::ranges::find(used_addrs, reinterpret_cast<uintptr_t>(arg_)) != used_addrs.end())
-                *os_ << prefix << "[RECURSION]";
+                *os_ << std::endl << prefix << "[RECURSION]";
             else
             {
                 used_addrs.push_back(reinterpret_cast<uintptr_t>(arg_));
@@ -1100,18 +1035,13 @@ inline void ArgPrinter<volatile char*>::print_arg()
                     std::stringstream ss;
                     ss << name_ << "[" << i << "]";
                     const auto next = new ArgPrinter<volatile char>(arg_[i], ss.str(), depth_, enum_printers_, os_);
-                    if (i == len_->get_ref() - 1 || (len_->get_ref() == 0 && arg_[i] == 0))
-                        next->set_print_endl(false);
-
                     next->print_arg();
                 }
                 used_addrs.pop_back();
             }
-            prefix = old_prefix;
         }
     }
-    if (print_endl_)
-        *os_ << std::endl;
+    prefix.pop_back();
 }
 
 /**
@@ -1120,7 +1050,8 @@ inline void ArgPrinter<volatile char*>::print_arg()
 template <>
 inline void ArgPrinter<volatile wchar_t*>::print_arg()
 {
-    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<volatile void*>(arg_);
+    prefix += '\t';
+    *os_ << std::endl << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<volatile void*>(arg_);
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
     if (const auto name = get_symbol_name(arg_); !name.empty())
@@ -1132,11 +1063,8 @@ inline void ArgPrinter<volatile wchar_t*>::print_arg()
         *os_ << " {" << arg << "}";
         if (recurse_)
         {
-            *os_ << std::endl;
-            const auto old_prefix = prefix;
-            prefix += "\t";
             if (std::ranges::find(used_addrs, reinterpret_cast<uintptr_t>(arg_)) != used_addrs.end())
-                *os_ << prefix << "[RECURSION]";
+                *os_ << std::endl << prefix << "[RECURSION]";
             else
             {
                 used_addrs.push_back(reinterpret_cast<uintptr_t>(arg_));
@@ -1145,18 +1073,13 @@ inline void ArgPrinter<volatile wchar_t*>::print_arg()
                     std::stringstream ss;
                     ss << name_ << "[" << i << "]";
                     const auto next = new ArgPrinter<volatile wchar_t>(arg_[i], ss.str(), depth_, enum_printers_, os_);
-                    if (i == len_->get_ref() - 1 || (len_->get_ref() == 0 && arg_[i] == 0))
-                        next->set_print_endl(false);
-
                     next->print_arg();
                 }
                 used_addrs.pop_back();
             }
-            prefix = old_prefix;
         }
     }
-    if (print_endl_)
-        *os_ << std::endl;
+    prefix.pop_back();
 }
 
 /**
@@ -1165,21 +1088,19 @@ inline void ArgPrinter<volatile wchar_t*>::print_arg()
 template <>
 inline void ArgPrinter<volatile void*>::print_arg()
 {
-    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << arg_;
+    prefix += '\t';
+    *os_ << std::endl << prefix << name_ << ": (" << get_type(arg_) << ") " << arg_;
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
     if (const auto name = get_symbol_name(arg_); !name.empty())
         *os_ << " (" << name << ")";
-    if (recurse_ && bomb_detector(static_cast<const volatile std::byte*>(arg_), len_->get_ref()))
+    if (recurse_ && len_->get_ref() != 0 &&
+        bomb_detector(static_cast<const volatile std::byte*>(arg_), len_->get_ref()))
     {
         *os_ << std::endl;
-        const auto old_prefix = prefix;
-        prefix += "\t";
         hexdump(*os_, arg_, len_->get_ref());
-        prefix = old_prefix;
     }
-    if (print_endl_)
-        *os_ << std::endl;
+    prefix.pop_back();
 }
 
 /*
@@ -1194,18 +1115,16 @@ inline void ArgPrinter<volatile void*>::print_arg()
 template <typename T>
 void ArgPrinter<const T*>::print_arg()
 {
-    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<const void*>(arg_);
+    prefix += '\t';
+    *os_ << std::endl << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<const void*>(arg_);
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
     if (const auto name = get_symbol_name(static_cast<const void*>(arg_)); !name.empty())
         *os_ << " (" << name << ")";
     if (recurse_ && bomb_detector(arg_, len_->get_ref()))
     {
-        *os_ << std::endl;
-        const auto old_prefix = prefix;
-        prefix += "\t";
         if (std::ranges::find(used_addrs, reinterpret_cast<uintptr_t>(arg_)) != used_addrs.end())
-            *os_ << prefix << "[RECURSION]";
+            *os_ << std::endl << prefix << "[RECURSION]";
         else
         {
             used_addrs.push_back(reinterpret_cast<uintptr_t>(arg_));
@@ -1215,24 +1134,17 @@ void ArgPrinter<const T*>::print_arg()
                     std::stringstream ss;
                     ss << name_ << "[" << i << "]";
                     const auto next = new ArgPrinter<const T>(arg_[i], ss.str(), depth_, enum_printers_, os_);
-                    if (!end_test_(i + 1))
-                        next->set_print_endl(false);
-
                     next->print_arg();
                 }
             else
             {
                 const auto next = new ArgPrinter<const T>(*arg_, "*" + name_, depth_, enum_printers_, os_);
-                next->set_print_endl(false);
-
                 next->print_arg();
             }
             used_addrs.pop_back();
         }
-        prefix = old_prefix;
     }
-    if (print_endl_)
-        *os_ << std::endl;
+    prefix.pop_back();
 }
 
 /**
@@ -1241,7 +1153,8 @@ void ArgPrinter<const T*>::print_arg()
 template <>
 inline void ArgPrinter<const char*>::print_arg()
 {
-    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<const void*>(arg_);
+    prefix += '\t';
+    *os_ << std::endl << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<const void*>(arg_);
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
     if (const auto name = get_symbol_name(arg_); !name.empty())
@@ -1253,11 +1166,8 @@ inline void ArgPrinter<const char*>::print_arg()
         *os_ << " {" << arg << "}";
         if (recurse_)
         {
-            *os_ << std::endl;
-            const auto old_prefix = prefix;
-            prefix += "\t";
             if (std::ranges::find(used_addrs, reinterpret_cast<uintptr_t>(arg_)) != used_addrs.end())
-                *os_ << prefix << "[RECURSION]";
+                *os_ << std::endl << prefix << "[RECURSION]";
             else
             {
                 used_addrs.push_back(reinterpret_cast<uintptr_t>(arg_));
@@ -1266,18 +1176,13 @@ inline void ArgPrinter<const char*>::print_arg()
                     std::stringstream ss;
                     ss << name_ << "[" << i << "]";
                     const auto next = new ArgPrinter<const char>(arg_[i], ss.str(), depth_, enum_printers_, os_);
-                    if (i == len_->get_ref() - 1 || (len_->get_ref() == 0 && arg_[i] == 0))
-                        next->set_print_endl(false);
-
                     next->print_arg();
                 }
                 used_addrs.pop_back();
             }
-            prefix = old_prefix;
         }
     }
-    if (print_endl_)
-        *os_ << std::endl;
+    prefix.pop_back();
 }
 
 /**
@@ -1286,7 +1191,8 @@ inline void ArgPrinter<const char*>::print_arg()
 template <>
 inline void ArgPrinter<const wchar_t*>::print_arg()
 {
-    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<const void*>(arg_);
+    prefix += '\t';
+    *os_ << std::endl << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<const void*>(arg_);
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
     if (const auto name = get_symbol_name(arg_); !name.empty())
@@ -1298,11 +1204,8 @@ inline void ArgPrinter<const wchar_t*>::print_arg()
         *os_ << " {" << arg << "}";
         if (recurse_)
         {
-            *os_ << std::endl;
-            const auto old_prefix = prefix;
-            prefix += "\t";
             if (std::ranges::find(used_addrs, reinterpret_cast<uintptr_t>(arg_)) != used_addrs.end())
-                *os_ << prefix << "[RECURSION]";
+                *os_ << std::endl << prefix << "[RECURSION]";
             else
             {
                 used_addrs.push_back(reinterpret_cast<uintptr_t>(arg_));
@@ -1311,18 +1214,13 @@ inline void ArgPrinter<const wchar_t*>::print_arg()
                     std::stringstream ss;
                     ss << name_ << "[" << i << "]";
                     const auto next = new ArgPrinter<const wchar_t>(arg_[i], ss.str(), depth_, enum_printers_, os_);
-                    if (i == len_->get_ref() - 1 || (len_->get_ref() == 0 && arg_[i] == 0))
-                        next->set_print_endl(false);
-
                     next->print_arg();
                 }
                 used_addrs.pop_back();
             }
-            prefix = old_prefix;
         }
     }
-    if (print_endl_)
-        *os_ << std::endl;
+    prefix.pop_back();
 }
 
 /**
@@ -1331,21 +1229,19 @@ inline void ArgPrinter<const wchar_t*>::print_arg()
 template <>
 inline void ArgPrinter<const void*>::print_arg()
 {
-    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << arg_;
+    prefix += '\t';
+    *os_ << std::endl << prefix << name_ << ": (" << get_type(arg_) << ") " << arg_;
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
     if (const auto name = get_symbol_name(arg_); !name.empty())
         *os_ << " (" << name << ")";
-    if (recurse_ && bomb_detector(static_cast<const volatile std::byte*>(arg_), len_->get_ref()))
+    if (recurse_ && len_->get_ref() != 0 &&
+        bomb_detector(static_cast<const volatile std::byte*>(arg_), len_->get_ref()))
     {
         *os_ << std::endl;
-        const auto old_prefix = prefix;
-        prefix += "\t";
         hexdump(*os_, arg_, len_->get_ref());
-        prefix = old_prefix;
     }
-    if (print_endl_)
-        *os_ << std::endl;
+    prefix.pop_back();
 }
 
 /*
@@ -1360,18 +1256,16 @@ inline void ArgPrinter<const void*>::print_arg()
 template <typename T>
 void ArgPrinter<const volatile T*>::print_arg()
 {
-    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<const volatile void*>(arg_);
+    prefix += '\t';
+    *os_ << std::endl << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<const volatile void*>(arg_);
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
     if (const auto name = get_symbol_name(static_cast<const volatile void*>(arg_)); !name.empty())
         *os_ << " (" << name << ")";
     if (recurse_ && bomb_detector(arg_, len_->get_ref()))
     {
-        *os_ << std::endl;
-        const auto old_prefix = prefix;
-        prefix += "\t";
         if (std::ranges::find(used_addrs, reinterpret_cast<uintptr_t>(arg_)) != used_addrs.end())
-            *os_ << prefix << "[RECURSION]";
+            *os_ << std::endl << prefix << "[RECURSION]";
         else
         {
             used_addrs.push_back(reinterpret_cast<uintptr_t>(arg_));
@@ -1381,24 +1275,17 @@ void ArgPrinter<const volatile T*>::print_arg()
                     std::stringstream ss;
                     ss << name_ << "[" << i << "]";
                     const auto next = new ArgPrinter<const volatile T>(arg_[i], ss.str(), depth_, enum_printers_, os_);
-                    if (!end_test_(i + 1))
-                        next->set_print_endl(false);
-
                     next->print_arg();
                 }
             else
             {
                 const auto next = new ArgPrinter<const volatile T>(*arg_, "*" + name_, depth_, enum_printers_, os_);
-                next->set_print_endl(false);
-
                 next->print_arg();
             }
             used_addrs.pop_back();
         }
-        prefix = old_prefix;
     }
-    if (print_endl_)
-        *os_ << std::endl;
+    prefix.pop_back();
 }
 
 /**
@@ -1407,7 +1294,8 @@ void ArgPrinter<const volatile T*>::print_arg()
 template <>
 inline void ArgPrinter<const volatile char*>::print_arg()
 {
-    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<const volatile void*>(arg_);
+    prefix += '\t';
+    *os_ << std::endl << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<const volatile void*>(arg_);
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
     if (const auto name = get_symbol_name(arg_); !name.empty())
@@ -1419,11 +1307,8 @@ inline void ArgPrinter<const volatile char*>::print_arg()
         *os_ << " {" << arg << "}";
         if (recurse_)
         {
-            *os_ << std::endl;
-            const auto old_prefix = prefix;
-            prefix += "\t";
             if (std::ranges::find(used_addrs, reinterpret_cast<uintptr_t>(arg_)) != used_addrs.end())
-                *os_ << prefix << "[RECURSION]";
+                *os_ << std::endl << prefix << "[RECURSION]";
             else
             {
                 used_addrs.push_back(reinterpret_cast<uintptr_t>(arg_));
@@ -1433,18 +1318,13 @@ inline void ArgPrinter<const volatile char*>::print_arg()
                     ss << name_ << "[" << i << "]";
                     const auto next = new ArgPrinter<const volatile char>(
                         arg_[i], ss.str(), depth_, enum_printers_, os_);
-                    if (i == len_->get_ref() - 1 || (len_->get_ref() == 0 && arg_[i] == 0))
-                        next->set_print_endl(false);
-
                     next->print_arg();
                 }
                 used_addrs.pop_back();
             }
-            prefix = old_prefix;
         }
     }
-    if (print_endl_)
-        *os_ << std::endl;
+    prefix.pop_back();
 }
 
 /**
@@ -1453,7 +1333,8 @@ inline void ArgPrinter<const volatile char*>::print_arg()
 template <>
 inline void ArgPrinter<const volatile wchar_t*>::print_arg()
 {
-    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<const volatile void*>(arg_);
+    prefix += '\t';
+    *os_ << std::endl << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<const volatile void*>(arg_);
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
     if (const auto name = get_symbol_name(arg_); !name.empty())
@@ -1465,11 +1346,8 @@ inline void ArgPrinter<const volatile wchar_t*>::print_arg()
         *os_ << " {" << arg << "}";
         if (recurse_)
         {
-            *os_ << std::endl;
-            const auto old_prefix = prefix;
-            prefix += "\t";
             if (std::ranges::find(used_addrs, reinterpret_cast<uintptr_t>(arg_)) != used_addrs.end())
-                *os_ << prefix << "[RECURSION]";
+                *os_ << std::endl << prefix << "[RECURSION]";
             else
             {
                 used_addrs.push_back(reinterpret_cast<uintptr_t>(arg_));
@@ -1479,18 +1357,13 @@ inline void ArgPrinter<const volatile wchar_t*>::print_arg()
                     ss << name_ << "[" << i << "]";
                     const auto next = new ArgPrinter<const volatile wchar_t>(
                         arg_[i], ss.str(), depth_, enum_printers_, os_);
-                    if (i == len_->get_ref() - 1 || (len_->get_ref() == 0 && arg_[i] == 0))
-                        next->set_print_endl(false);
-
                     next->print_arg();
                 }
                 used_addrs.pop_back();
             }
-            prefix = old_prefix;
         }
     }
-    if (print_endl_)
-        *os_ << std::endl;
+    prefix.pop_back();
 }
 
 /**
@@ -1499,21 +1372,19 @@ inline void ArgPrinter<const volatile wchar_t*>::print_arg()
 template <>
 inline void ArgPrinter<const volatile void*>::print_arg()
 {
-    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << arg_;
+    prefix += '\t';
+    *os_ << std::endl << prefix << name_ << ": (" << get_type(arg_) << ") " << arg_;
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
     if (const auto name = get_symbol_name(arg_); !name.empty())
         *os_ << " (" << name << ")";
-    if (recurse_ && bomb_detector(static_cast<const volatile std::byte*>(arg_), len_->get_ref()))
+    if (recurse_ && len_->get_ref() != 0 &&
+        bomb_detector(static_cast<const volatile std::byte*>(arg_), len_->get_ref()))
     {
         *os_ << std::endl;
-        const auto old_prefix = prefix;
-        prefix += "\t";
         hexdump(*os_, arg_, len_->get_ref());
-        prefix = old_prefix;
     }
-    if (print_endl_)
-        *os_ << std::endl;
+    prefix.pop_back();
 }
 
 /*
@@ -1528,18 +1399,16 @@ inline void ArgPrinter<const volatile void*>::print_arg()
 template <typename T>
 void ArgPrinter<T* const>::print_arg()
 {
-    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<const void*>(arg_);
+    prefix += '\t';
+    *os_ << std::endl << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<const void*>(arg_);
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
     if (const auto name = get_symbol_name(static_cast<const void*>(arg_)); !name.empty())
         *os_ << " (" << name << ")";
     if (recurse_ && bomb_detector(arg_, len_->get_ref()))
     {
-        *os_ << std::endl;
-        const auto old_prefix = prefix;
-        prefix += "\t";
         if (std::ranges::find(used_addrs, reinterpret_cast<uintptr_t>(arg_)) != used_addrs.end())
-            *os_ << prefix << "[RECURSION]";
+            *os_ << std::endl << prefix << "[RECURSION]";
         else
         {
             used_addrs.push_back(reinterpret_cast<uintptr_t>(arg_));
@@ -1549,24 +1418,17 @@ void ArgPrinter<T* const>::print_arg()
                     std::stringstream ss;
                     ss << name_ << "[" << i << "]";
                     const auto next = new ArgPrinter<T>(arg_[i], ss.str(), depth_, enum_printers_, os_);
-                    if (!end_test_(i + 1))
-                        next->set_print_endl(false);
-
                     next->print_arg();
                 }
             else
             {
                 const auto next = new ArgPrinter<T>(*arg_, "*" + name_, depth_, enum_printers_, os_);
-                next->set_print_endl(false);
-
                 next->print_arg();
             }
             used_addrs.pop_back();
         }
-        prefix = old_prefix;
     }
-    if (print_endl_)
-        *os_ << std::endl;
+    prefix.pop_back();
 }
 
 /**
@@ -1575,7 +1437,8 @@ void ArgPrinter<T* const>::print_arg()
 template <>
 inline void ArgPrinter<char* const>::print_arg()
 {
-    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<const void*>(arg_);
+    prefix += '\t';
+    *os_ << std::endl << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<const void*>(arg_);
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
     if (const auto name = get_symbol_name(arg_); !name.empty())
@@ -1587,11 +1450,8 @@ inline void ArgPrinter<char* const>::print_arg()
         *os_ << " {" << arg << "}";
         if (recurse_)
         {
-            *os_ << std::endl;
-            const auto old_prefix = prefix;
-            prefix += "\t";
             if (std::ranges::find(used_addrs, reinterpret_cast<uintptr_t>(arg_)) != used_addrs.end())
-                *os_ << prefix << "[RECURSION]";
+                *os_ << std::endl << prefix << "[RECURSION]";
             else
             {
                 used_addrs.push_back(reinterpret_cast<uintptr_t>(arg_));
@@ -1600,18 +1460,13 @@ inline void ArgPrinter<char* const>::print_arg()
                     std::stringstream ss;
                     ss << name_ << "[" << i << "]";
                     const auto next = new ArgPrinter<char>(arg_[i], ss.str(), depth_, enum_printers_, os_);
-                    if (i == len_->get_ref() - 1 || (len_->get_ref() == 0 && arg_[i] == 0))
-                        next->set_print_endl(false);
-
                     next->print_arg();
                 }
                 used_addrs.pop_back();
             }
-            prefix = old_prefix;
         }
     }
-    if (print_endl_)
-        *os_ << std::endl;
+    prefix.pop_back();
 }
 
 /**
@@ -1620,7 +1475,8 @@ inline void ArgPrinter<char* const>::print_arg()
 template <>
 inline void ArgPrinter<wchar_t* const>::print_arg()
 {
-    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<const void*>(arg_);
+    prefix += '\t';
+    *os_ << std::endl << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<const void*>(arg_);
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
     if (const auto name = get_symbol_name(arg_); !name.empty())
@@ -1632,11 +1488,8 @@ inline void ArgPrinter<wchar_t* const>::print_arg()
         *os_ << " {" << arg << "}";
         if (recurse_)
         {
-            *os_ << std::endl;
-            const auto old_prefix = prefix;
-            prefix += "\t";
             if (std::ranges::find(used_addrs, reinterpret_cast<uintptr_t>(arg_)) != used_addrs.end())
-                *os_ << prefix << "[RECURSION]";
+                *os_ << std::endl << prefix << "[RECURSION]";
             else
             {
                 used_addrs.push_back(reinterpret_cast<uintptr_t>(arg_));
@@ -1645,18 +1498,13 @@ inline void ArgPrinter<wchar_t* const>::print_arg()
                     std::stringstream ss;
                     ss << name_ << "[" << i << "]";
                     const auto next = new ArgPrinter<wchar_t>(arg_[i], ss.str(), depth_, enum_printers_, os_);
-                    if (i == len_->get_ref() - 1 || (len_->get_ref() == 0 && arg_[i] == 0))
-                        next->set_print_endl(false);
-
                     next->print_arg();
                 }
                 used_addrs.pop_back();
             }
-            prefix = old_prefix;
         }
     }
-    if (print_endl_)
-        *os_ << std::endl;
+    prefix.pop_back();
 }
 
 /**
@@ -1665,13 +1513,13 @@ inline void ArgPrinter<wchar_t* const>::print_arg()
 template <>
 inline void ArgPrinter<FILE* const>::print_arg()
 {
-    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << arg_;
+    prefix += '\t';
+    *os_ << std::endl << prefix << name_ << ": (" << get_type(arg_) << ") " << arg_;
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
     if (const auto name = get_symbol_name(arg_); !name.empty())
         *os_ << " (" << name << ")";
-    if (print_endl_)
-        *os_ << std::endl;
+    prefix.pop_back();
 }
 
 /**
@@ -1680,13 +1528,13 @@ inline void ArgPrinter<FILE* const>::print_arg()
 template <>
 inline void ArgPrinter<DIR* const>::print_arg()
 {
-    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << arg_;
+    prefix += '\t';
+    *os_ << std::endl << prefix << name_ << ": (" << get_type(arg_) << ") " << arg_;
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
     if (const auto name = get_symbol_name(arg_); !name.empty())
         *os_ << " (" << name << ")";
-    if (print_endl_)
-        *os_ << std::endl;
+    prefix.pop_back();
 }
 
 /**
@@ -1695,21 +1543,19 @@ inline void ArgPrinter<DIR* const>::print_arg()
 template <>
 inline void ArgPrinter<void* const>::print_arg()
 {
-    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << arg_;
+    prefix += '\t';
+    *os_ << std::endl << prefix << name_ << ": (" << get_type(arg_) << ") " << arg_;
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
     if (const auto name = get_symbol_name(arg_); !name.empty())
         *os_ << " (" << name << ")";
-    if (recurse_ && bomb_detector(static_cast<const volatile std::byte*>(arg_), len_->get_ref()))
+    if (recurse_ && len_->get_ref() != 0 &&
+        bomb_detector(static_cast<const volatile std::byte*>(arg_), len_->get_ref()))
     {
         *os_ << std::endl;
-        const auto old_prefix = prefix;
-        prefix += "\t";
         hexdump(*os_, arg_, len_->get_ref());
-        prefix = old_prefix;
     }
-    if (print_endl_)
-        *os_ << std::endl;
+    prefix.pop_back();
 }
 
 /*
@@ -1724,18 +1570,16 @@ inline void ArgPrinter<void* const>::print_arg()
 template <typename T>
 void ArgPrinter<volatile T* const>::print_arg()
 {
-    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<const volatile void*>(arg_);
+    prefix += '\t';
+    *os_ << std::endl << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<const volatile void*>(arg_);
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
     if (const auto name = get_symbol_name(static_cast<const volatile void*>(arg_)); !name.empty())
         *os_ << " (" << name << ")";
     if (recurse_ && bomb_detector(arg_, len_->get_ref()))
     {
-        *os_ << std::endl;
-        const auto old_prefix = prefix;
-        prefix += "\t";
         if (std::ranges::find(used_addrs, reinterpret_cast<uintptr_t>(arg_)) != used_addrs.end())
-            *os_ << prefix << "[RECURSION]";
+            *os_ << std::endl << prefix << "[RECURSION]";
         else
         {
             used_addrs.push_back(reinterpret_cast<uintptr_t>(arg_));
@@ -1745,24 +1589,17 @@ void ArgPrinter<volatile T* const>::print_arg()
                     std::stringstream ss;
                     ss << name_ << "[" << i << "]";
                     const auto next = new ArgPrinter<volatile T>(arg_[i], ss.str(), depth_, enum_printers_, os_);
-                    if (!end_test_(i + 1))
-                        next->set_print_endl(false);
-
                     next->print_arg();
                 }
             else
             {
                 const auto next = new ArgPrinter<volatile T>(*arg_, "*" + name_, depth_, enum_printers_, os_);
-                next->set_print_endl(false);
-
                 next->print_arg();
             }
             used_addrs.pop_back();
         }
-        prefix = old_prefix;
     }
-    if (print_endl_)
-        *os_ << std::endl;
+    prefix.pop_back();
 }
 
 /**
@@ -1771,7 +1608,8 @@ void ArgPrinter<volatile T* const>::print_arg()
 template <>
 inline void ArgPrinter<volatile char* const>::print_arg()
 {
-    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<const volatile void*>(arg_);
+    prefix += '\t';
+    *os_ << std::endl << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<const volatile void*>(arg_);
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
     if (const auto name = get_symbol_name(arg_); !name.empty())
@@ -1783,11 +1621,8 @@ inline void ArgPrinter<volatile char* const>::print_arg()
         *os_ << " {" << arg << "}";
         if (recurse_)
         {
-            *os_ << std::endl;
-            const auto old_prefix = prefix;
-            prefix += "\t";
             if (std::ranges::find(used_addrs, reinterpret_cast<uintptr_t>(arg_)) != used_addrs.end())
-                *os_ << prefix << "[RECURSION]";
+                *os_ << std::endl << prefix << "[RECURSION]";
             else
             {
                 used_addrs.push_back(reinterpret_cast<uintptr_t>(arg_));
@@ -1796,18 +1631,13 @@ inline void ArgPrinter<volatile char* const>::print_arg()
                     std::stringstream ss;
                     ss << name_ << "[" << i << "]";
                     const auto next = new ArgPrinter<volatile char>(arg_[i], ss.str(), depth_, enum_printers_, os_);
-                    if (i == len_->get_ref() - 1 || (len_->get_ref() == 0 && arg_[i] == 0))
-                        next->set_print_endl(false);
-
                     next->print_arg();
                 }
                 used_addrs.pop_back();
             }
-            prefix = old_prefix;
         }
     }
-    if (print_endl_)
-        *os_ << std::endl;
+    prefix.pop_back();
 }
 
 /**
@@ -1816,7 +1646,8 @@ inline void ArgPrinter<volatile char* const>::print_arg()
 template <>
 inline void ArgPrinter<volatile wchar_t* const>::print_arg()
 {
-    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<const volatile void*>(arg_);
+    prefix += '\t';
+    *os_ << std::endl << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<const volatile void*>(arg_);
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
     if (const auto name = get_symbol_name(arg_); !name.empty())
@@ -1828,11 +1659,8 @@ inline void ArgPrinter<volatile wchar_t* const>::print_arg()
         *os_ << " {" << arg << "}";
         if (recurse_)
         {
-            *os_ << std::endl;
-            const auto old_prefix = prefix;
-            prefix += "\t";
             if (std::ranges::find(used_addrs, reinterpret_cast<uintptr_t>(arg_)) != used_addrs.end())
-                *os_ << prefix << "[RECURSION]";
+                *os_ << std::endl << prefix << "[RECURSION]";
             else
             {
                 used_addrs.push_back(reinterpret_cast<uintptr_t>(arg_));
@@ -1841,18 +1669,13 @@ inline void ArgPrinter<volatile wchar_t* const>::print_arg()
                     std::stringstream ss;
                     ss << name_ << "[" << i << "]";
                     const auto next = new ArgPrinter<volatile wchar_t>(arg_[i], ss.str(), depth_, enum_printers_, os_);
-                    if (i == len_->get_ref() - 1 || (len_->get_ref() == 0 && arg_[i] == 0))
-                        next->set_print_endl(false);
-
                     next->print_arg();
                 }
                 used_addrs.pop_back();
             }
-            prefix = old_prefix;
         }
     }
-    if (print_endl_)
-        *os_ << std::endl;
+    prefix.pop_back();
 }
 
 /**
@@ -1861,13 +1684,13 @@ inline void ArgPrinter<volatile wchar_t* const>::print_arg()
 template <>
 inline void ArgPrinter<volatile FILE* const>::print_arg()
 {
-    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << arg_;
+    prefix += '\t';
+    *os_ << std::endl << prefix << name_ << ": (" << get_type(arg_) << ") " << arg_;
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
     if (const auto name = get_symbol_name(arg_); !name.empty())
         *os_ << " (" << name << ")";
-    if (print_endl_)
-        *os_ << std::endl;
+    prefix.pop_back();
 }
 
 /**
@@ -1876,13 +1699,13 @@ inline void ArgPrinter<volatile FILE* const>::print_arg()
 template <>
 inline void ArgPrinter<volatile DIR* const>::print_arg()
 {
-    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << arg_;
+    prefix += '\t';
+    *os_ << std::endl << prefix << name_ << ": (" << get_type(arg_) << ") " << arg_;
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
     if (const auto name = get_symbol_name(arg_); !name.empty())
         *os_ << " (" << name << ")";
-    if (print_endl_)
-        *os_ << std::endl;
+    prefix.pop_back();
 }
 
 /**
@@ -1891,21 +1714,19 @@ inline void ArgPrinter<volatile DIR* const>::print_arg()
 template <>
 inline void ArgPrinter<volatile void* const>::print_arg()
 {
-    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << arg_;
+    prefix += '\t';
+    *os_ << std::endl << prefix << name_ << ": (" << get_type(arg_) << ") " << arg_;
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
     if (const auto name = get_symbol_name(arg_); !name.empty())
         *os_ << " (" << name << ")";
-    if (recurse_ && bomb_detector(static_cast<const volatile std::byte*>(arg_), len_->get_ref()))
+    if (recurse_ && len_->get_ref() != 0 &&
+        bomb_detector(static_cast<const volatile std::byte*>(arg_), len_->get_ref()))
     {
         *os_ << std::endl;
-        const auto old_prefix = prefix;
-        prefix += "\t";
         hexdump(*os_, arg_, len_->get_ref());
-        prefix = old_prefix;
     }
-    if (print_endl_)
-        *os_ << std::endl;
+    prefix.pop_back();
 }
 
 /*
@@ -1920,18 +1741,16 @@ inline void ArgPrinter<volatile void* const>::print_arg()
 template <typename T>
 void ArgPrinter<const T* const>::print_arg()
 {
-    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<const void*>(arg_);
+    prefix += '\t';
+    *os_ << std::endl << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<const void*>(arg_);
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
     if (const auto name = get_symbol_name(static_cast<const void*>(arg_)); !name.empty())
         *os_ << " (" << name << ")";
     if (recurse_ && bomb_detector(arg_, len_->get_ref()))
     {
-        *os_ << std::endl;
-        const auto old_prefix = prefix;
-        prefix += "\t";
         if (std::ranges::find(used_addrs, reinterpret_cast<uintptr_t>(arg_)) != used_addrs.end())
-            *os_ << prefix << "[RECURSION]";
+            *os_ << std::endl << prefix << "[RECURSION]";
         else
         {
             used_addrs.push_back(reinterpret_cast<uintptr_t>(arg_));
@@ -1941,24 +1760,17 @@ void ArgPrinter<const T* const>::print_arg()
                     std::stringstream ss;
                     ss << name_ << "[" << i << "]";
                     const auto next = new ArgPrinter<const T>(arg_[i], ss.str(), depth_, enum_printers_, os_);
-                    if (!end_test_(i + 1))
-                        next->set_print_endl(false);
-
                     next->print_arg();
                 }
             else
             {
                 const auto next = new ArgPrinter<const T>(*arg_, "*" + name_, depth_, enum_printers_, os_);
-                next->set_print_endl(false);
-
                 next->print_arg();
             }
             used_addrs.pop_back();
         }
-        prefix = old_prefix;
     }
-    if (print_endl_)
-        *os_ << std::endl;
+    prefix.pop_back();
 }
 
 /**
@@ -1967,7 +1779,8 @@ void ArgPrinter<const T* const>::print_arg()
 template <>
 inline void ArgPrinter<const char* const>::print_arg()
 {
-    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<const void*>(arg_);
+    prefix += '\t';
+    *os_ << std::endl << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<const void*>(arg_);
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
     if (const auto name = get_symbol_name(arg_); !name.empty())
@@ -1979,11 +1792,8 @@ inline void ArgPrinter<const char* const>::print_arg()
         *os_ << " {" << arg << "}";
         if (recurse_)
         {
-            *os_ << std::endl;
-            const auto old_prefix = prefix;
-            prefix += "\t";
             if (std::ranges::find(used_addrs, reinterpret_cast<uintptr_t>(arg_)) != used_addrs.end())
-                *os_ << prefix << "[RECURSION]";
+                *os_ << std::endl << prefix << "[RECURSION]";
             else
             {
                 used_addrs.push_back(reinterpret_cast<uintptr_t>(arg_));
@@ -1992,18 +1802,13 @@ inline void ArgPrinter<const char* const>::print_arg()
                     std::stringstream ss;
                     ss << name_ << "[" << i << "]";
                     const auto next = new ArgPrinter<const char>(arg_[i], ss.str(), depth_, enum_printers_, os_);
-                    if (i == len_->get_ref() - 1 || (len_->get_ref() == 0 && arg_[i] == 0))
-                        next->set_print_endl(false);
-
                     next->print_arg();
                 }
                 used_addrs.pop_back();
             }
-            prefix = old_prefix;
         }
     }
-    if (print_endl_)
-        *os_ << std::endl;
+    prefix.pop_back();
 }
 
 /**
@@ -2012,18 +1817,16 @@ inline void ArgPrinter<const char* const>::print_arg()
 template <>
 inline void ArgPrinter<const wchar_t* const>::print_arg()
 {
-    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<const void*>(arg_);
+    prefix += '\t';
+    *os_ << std::endl << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<const void*>(arg_);
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
     if (const auto name = get_symbol_name(arg_); !name.empty())
         *os_ << " (" << name << ")";
     if (recurse_)
     {
-        *os_ << std::endl;
-        const auto old_prefix = prefix;
-        prefix += "\t";
         if (std::ranges::find(used_addrs, reinterpret_cast<uintptr_t>(arg_)) != used_addrs.end())
-            *os_ << prefix << "[RECURSION]";
+            *os_ << std::endl << prefix << "[RECURSION]";
         else
         {
             auto arg = wide_to_narrow_str(arg_);
@@ -2037,18 +1840,13 @@ inline void ArgPrinter<const wchar_t* const>::print_arg()
                     std::stringstream ss;
                     ss << name_ << "[" << i << "]";
                     const auto next = new ArgPrinter<const wchar_t>(arg_[i], ss.str(), depth_, enum_printers_, os_);
-                    if (i == len_->get_ref() - 1 || (len_->get_ref() == 0 && arg_[i] == 0))
-                        next->set_print_endl(false);
-
                     next->print_arg();
                 }
                 used_addrs.pop_back();
             }
-            prefix = old_prefix;
         }
     }
-    if (print_endl_)
-        *os_ << std::endl;
+    prefix.pop_back();
 }
 
 /**
@@ -2057,21 +1855,19 @@ inline void ArgPrinter<const wchar_t* const>::print_arg()
 template <>
 inline void ArgPrinter<const void* const>::print_arg()
 {
-    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << arg_;
+    prefix += '\t';
+    *os_ << std::endl << prefix << name_ << ": (" << get_type(arg_) << ") " << arg_;
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
     if (const auto name = get_symbol_name(arg_); !name.empty())
         *os_ << " (" << name << ")";
-    if (recurse_ && bomb_detector(static_cast<const volatile std::byte*>(arg_), len_->get_ref()))
+    if (recurse_ && len_->get_ref() != 0 &&
+        bomb_detector(static_cast<const volatile std::byte*>(arg_), len_->get_ref()))
     {
         *os_ << std::endl;
-        const auto old_prefix = prefix;
-        prefix += "\t";
         hexdump(*os_, arg_, len_->get_ref());
-        prefix = old_prefix;
     }
-    if (print_endl_)
-        *os_ << std::endl;
+    prefix.pop_back();
 }
 
 /*
@@ -2086,18 +1882,16 @@ inline void ArgPrinter<const void* const>::print_arg()
 template <typename T>
 void ArgPrinter<const volatile T* const>::print_arg()
 {
-    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<const volatile void*>(arg_);
+    prefix += '\t';
+    *os_ << std::endl << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<const volatile void*>(arg_);
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
     if (const auto name = get_symbol_name(static_cast<const volatile void*>(arg_)); !name.empty())
         *os_ << " (" << name << ")";
     if (recurse_ && bomb_detector(arg_, len_->get_ref()))
     {
-        *os_ << std::endl;
-        const auto old_prefix = prefix;
-        prefix += "\t";
         if (std::ranges::find(used_addrs, reinterpret_cast<uintptr_t>(arg_)) != used_addrs.end())
-            *os_ << prefix << "[RECURSION]";
+            *os_ << std::endl << prefix << "[RECURSION]";
         else
         {
             used_addrs.push_back(reinterpret_cast<uintptr_t>(arg_));
@@ -2107,24 +1901,17 @@ void ArgPrinter<const volatile T* const>::print_arg()
                     std::stringstream ss;
                     ss << name_ << "[" << i << "]";
                     const auto next = new ArgPrinter<const volatile T>(arg_[i], ss.str(), depth_, enum_printers_, os_);
-                    if (!end_test_(i + 1))
-                        next->set_print_endl(false);
-
                     next->print_arg();
                 }
             else
             {
                 const auto next = new ArgPrinter<const volatile T>(*arg_, "*" + name_, depth_, enum_printers_, os_);
-                next->set_print_endl(false);
-
                 next->print_arg();
             }
             used_addrs.pop_back();
         }
-        prefix = old_prefix;
     }
-    if (print_endl_)
-        *os_ << std::endl;
+    prefix.pop_back();
 }
 
 /**
@@ -2133,7 +1920,8 @@ void ArgPrinter<const volatile T* const>::print_arg()
 template <>
 inline void ArgPrinter<const volatile char* const>::print_arg()
 {
-    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<const volatile void*>(arg_);
+    prefix += '\t';
+    *os_ << std::endl << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<const volatile void*>(arg_);
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
     if (const auto name = get_symbol_name(arg_); !name.empty())
@@ -2145,11 +1933,8 @@ inline void ArgPrinter<const volatile char* const>::print_arg()
         *os_ << " {" << arg << "}";
         if (recurse_)
         {
-            *os_ << std::endl;
-            const auto old_prefix = prefix;
-            prefix += "\t";
             if (std::ranges::find(used_addrs, reinterpret_cast<uintptr_t>(arg_)) != used_addrs.end())
-                *os_ << prefix << "[RECURSION]";
+                *os_ << std::endl << prefix << "[RECURSION]";
             else
             {
                 used_addrs.push_back(reinterpret_cast<uintptr_t>(arg_));
@@ -2159,18 +1944,13 @@ inline void ArgPrinter<const volatile char* const>::print_arg()
                     ss << name_ << "[" << i << "]";
                     const auto next = new ArgPrinter<const volatile char>(
                         arg_[i], ss.str(), depth_, enum_printers_, os_);
-                    if (i == len_->get_ref() - 1 || (len_->get_ref() == 0 && arg_[i] == 0))
-                        next->set_print_endl(false);
-
                     next->print_arg();
                 }
                 used_addrs.pop_back();
             }
-            prefix = old_prefix;
         }
     }
-    if (print_endl_)
-        *os_ << std::endl;
+    prefix.pop_back();
 }
 
 /**
@@ -2179,18 +1959,16 @@ inline void ArgPrinter<const volatile char* const>::print_arg()
 template <>
 inline void ArgPrinter<const volatile wchar_t* const>::print_arg()
 {
-    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<const volatile void*>(arg_);
+    prefix += '\t';
+    *os_ << std::endl << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<const volatile void*>(arg_);
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
     if (const auto name = get_symbol_name(arg_); !name.empty())
         *os_ << " (" << name << ")";
     if (recurse_)
     {
-        *os_ << std::endl;
-        const auto old_prefix = prefix;
-        prefix += "\t";
         if (std::ranges::find(used_addrs, reinterpret_cast<uintptr_t>(arg_)) != used_addrs.end())
-            *os_ << prefix << "[RECURSION]";
+            *os_ << std::endl << prefix << "[RECURSION]";
         else
         {
             auto arg = wide_to_narrow_str(const_cast<const wchar_t* const>(arg_));
@@ -2205,18 +1983,13 @@ inline void ArgPrinter<const volatile wchar_t* const>::print_arg()
                     ss << name_ << "[" << i << "]";
                     const auto next = new ArgPrinter<const volatile wchar_t>(
                         arg_[i], ss.str(), depth_, enum_printers_, os_);
-                    if (i == len_->get_ref() - 1 || (len_->get_ref() == 0 && arg_[i] == 0))
-                        next->set_print_endl(false);
-
                     next->print_arg();
                 }
                 used_addrs.pop_back();
             }
-            prefix = old_prefix;
         }
     }
-    if (print_endl_)
-        *os_ << std::endl;
+    prefix.pop_back();
 }
 
 /**
@@ -2225,21 +1998,19 @@ inline void ArgPrinter<const volatile wchar_t* const>::print_arg()
 template <>
 inline void ArgPrinter<const volatile void* const>::print_arg()
 {
-    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << arg_;
+    prefix += '\t';
+    *os_ << std::endl << prefix << name_ << ": (" << get_type(arg_) << ") " << arg_;
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
     if (const auto name = get_symbol_name(arg_); !name.empty())
         *os_ << " (" << name << ")";
-    if (recurse_ && bomb_detector(static_cast<const volatile std::byte*>(arg_), len_->get_ref()))
+    if (recurse_ && len_->get_ref() != 0 &&
+        bomb_detector(static_cast<const volatile std::byte*>(arg_), len_->get_ref()))
     {
         *os_ << std::endl;
-        const auto old_prefix = prefix;
-        prefix += "\t";
         hexdump(*os_, arg_, len_->get_ref());
-        prefix = old_prefix;
     }
-    if (print_endl_)
-        *os_ << std::endl;
+    prefix.pop_back();
 }
 }
 

@@ -18,12 +18,11 @@ template <typename T, size_t N>
 struct ArgPrinter<T[N]>final : VirtArgPrinter
 {
     explicit ArgPrinter(T (&arg)[N], const std::string& name = "", std::ostream* os = &abii_stream,
-                        const int flags = 3) : arg_(arg), name_(name), print_endl_(flags & PRINT_ENDL),
-                                               recurse_(flags & RECURSE), os_(os) {}
+                        const int flags = 3) : arg_(arg), name_(name), recurse_(flags & RECURSE), os_(os) {}
 
     explicit ArgPrinter(T (&&arg)[N], const std::string& name = "", std::ostream* os = &abii_stream,
                         const int flags = 3) : arg_(rval_arg_), rval_arg_(arg), name_(name),
-                                               print_endl_(flags & PRINT_ENDL), recurse_(flags & RECURSE), os_(os) {}
+                                               recurse_(flags & RECURSE), os_(os) {}
 
     ~ArgPrinter() override = default;
 
@@ -83,8 +82,6 @@ struct ArgPrinter<T[N]>final : VirtArgPrinter
         va_list_printer_buf_size_ = size;
     }
 
-    [[nodiscard]] bool get_print_endl() const override { return print_endl_; }
-    void set_print_endl(const bool print_endl) override { print_endl_ = print_endl; }
     [[nodiscard]] bool get_recurse() const { return recurse_; }
     void set_recurse(const bool recurse) { recurse_ = recurse; }
     [[nodiscard]] std::ostream* get_os() const override { return os_; }
@@ -103,7 +100,7 @@ struct ArgPrinter<T[N]>final : VirtArgPrinter
                const std::map<size_t, std::function<std::string(const void*)>>& enum_printers,
                std::ostream* os = &abii_stream, const int flags = 1)
         : arg_(arg), name_(name), enum_printers_(enum_printers), depth_(previous_depth + 1),
-          print_endl_(flags & PRINT_ENDL), recurse_(flags & RECURSE), os_(os) {}
+          recurse_(flags & RECURSE), os_(os) {}
 
 private:
     T (&arg_)[N];
@@ -115,7 +112,6 @@ private:
     std::map<size_t, std::function<std::string(const char*, va_list, size_t)>> va_list_printers_;
     size_t va_list_printer_buf_size_ = 0;
     size_t depth_ = 0;
-    bool print_endl_ = true;
     bool recurse_ = true;
     std::ostream* os_;
     static size_t def_len_;
@@ -135,12 +131,11 @@ template <typename T, size_t N>
 struct ArgPrinter<const T[N]>final : VirtArgPrinter
 {
     explicit ArgPrinter(const T (&arg)[N], const std::string& name = "", std::ostream* os = &abii_stream,
-                        const int flags = 3) : arg_(arg), name_(name), print_endl_(flags & PRINT_ENDL),
-                                               recurse_(flags & RECURSE), os_(os) {}
+                        const int flags = 3) : arg_(arg), name_(name), recurse_(flags & RECURSE), os_(os) {}
 
     explicit ArgPrinter(const T (&&arg)[N], const std::string& name = "", std::ostream* os = &abii_stream,
-                        const int flags = 3) : arg_(rval_arg_), rval_arg_(arg), name_(name),
-                                               print_endl_(flags & PRINT_ENDL), recurse_(flags & RECURSE), os_(os) {}
+                        const int flags = 3) : arg_(rval_arg_), rval_arg_(arg), name_(name), recurse_(flags & RECURSE),
+                                               os_(os) {}
 
     [[nodiscard]] std::string get_name() const override { return name_; }
     void set_name(const std::string& name) override { name_ = name; }
@@ -172,8 +167,6 @@ struct ArgPrinter<const T[N]>final : VirtArgPrinter
         });
     }
 
-    [[nodiscard]] bool get_print_endl() const override { return print_endl_; }
-    void set_print_endl(const bool print_endl) override { print_endl_ = print_endl; }
     [[nodiscard]] bool get_recurse() const { return recurse_; }
     void set_recurse(const bool recurse) { recurse_ = recurse; }
     [[nodiscard]] std::ostream* get_os() const override { return os_; }
@@ -191,8 +184,8 @@ struct ArgPrinter<const T[N]>final : VirtArgPrinter
     ArgPrinter(const T (&arg)[N], const std::string& name, const size_t previous_depth,
                const std::map<size_t, std::function<std::string(const void*)>>& enum_printers,
                std::ostream* os = &abii_stream, const int flags = 1)
-        : arg_(arg), name_(name), enum_printers_(enum_printers), depth_(previous_depth + 1),
-          print_endl_(flags & PRINT_ENDL), recurse_(flags & RECURSE), os_(os) {}
+        : arg_(arg), name_(name), enum_printers_(enum_printers), depth_(previous_depth + 1), recurse_(flags & RECURSE),
+          os_(os) {}
 
 private:
     const T (&arg_)[N];
@@ -201,7 +194,6 @@ private:
     ReferenceType* len_ = new Reference(def_len_);
     std::map<size_t, std::function<std::string(const void*)>> enum_printers_;
     size_t depth_ = 0;
-    bool print_endl_ = true;
     bool recurse_ = true;
     std::ostream* os_;
     static size_t def_len_;
@@ -221,12 +213,11 @@ template <size_t N>
 struct ArgPrinter<__locale_data*[N]>final : VirtArgPrinter
 {
     explicit ArgPrinter(__locale_data* (&arg)[N], const std::string& name = "", std::ostream* os = &abii_stream,
-                        const int flags = 3) : arg_(arg), name_(name), print_endl_(flags & PRINT_ENDL),
-                                               recurse_(flags & RECURSE), os_(os) {}
+                        const int flags = 3) : arg_(arg), name_(name), recurse_(flags & RECURSE), os_(os) {}
 
     explicit ArgPrinter(__locale_data* (&&arg)[N], const std::string& name = "", std::ostream* os = &abii_stream,
-                        const int flags = 3) : arg_(rval_arg_), rval_arg_(arg), name_(name),
-                                               print_endl_(flags & PRINT_ENDL), recurse_(flags & RECURSE), os_(os) {}
+                        const int flags = 3) : arg_(rval_arg_), rval_arg_(arg), name_(name), recurse_(flags & RECURSE),
+                                               os_(os) {}
 
     [[nodiscard]] std::string get_name() const override { return name_; }
     void set_name(const std::string& name) override { name_ = name; }
@@ -258,8 +249,6 @@ struct ArgPrinter<__locale_data*[N]>final : VirtArgPrinter
         });
     }
 
-    [[nodiscard]] bool get_print_endl() const override { return print_endl_; }
-    void set_print_endl(const bool print_endl) override { print_endl_ = print_endl; }
     [[nodiscard]] bool get_recurse() const { return recurse_; }
     void set_recurse(const bool recurse) { recurse_ = recurse; }
     [[nodiscard]] std::ostream* get_os() const override { return os_; }
@@ -277,8 +266,8 @@ struct ArgPrinter<__locale_data*[N]>final : VirtArgPrinter
     ArgPrinter(__locale_data* const (&arg)[N], const std::string& name, const size_t previous_depth,
                const std::map<size_t, std::function<std::string(const void*)>>& enum_printers,
                std::ostream* os = &abii_stream, const int flags = 1)
-        : arg_(arg), name_(name), enum_printers_(enum_printers), depth_(previous_depth + 1),
-          print_endl_(flags & PRINT_ENDL), recurse_(flags & RECURSE), os_(os) {}
+        : arg_(arg), name_(name), enum_printers_(enum_printers), depth_(previous_depth + 1), recurse_(flags & RECURSE),
+          os_(os) {}
 
 private:
     __locale_data* (&arg_)[N];
@@ -287,7 +276,6 @@ private:
     ReferenceType* len_ = new Reference(def_len_);
     std::map<size_t, std::function<std::string(const void*)>> enum_printers_;
     size_t depth_ = 0;
-    bool print_endl_ = true;
     bool recurse_ = true;
     std::ostream* os_;
     static size_t def_len_;
@@ -307,12 +295,11 @@ template <size_t N>
 struct ArgPrinter<__locale_data* const[N]>final : VirtArgPrinter
 {
     explicit ArgPrinter(__locale_data* const (&arg)[N], const std::string& name = "", std::ostream* os = &abii_stream,
-                        const int flags = 3) : arg_(arg), name_(name), print_endl_(flags & PRINT_ENDL),
-                                               recurse_(flags & RECURSE), os_(os) {}
+                        const int flags = 3) : arg_(arg), name_(name), recurse_(flags & RECURSE), os_(os) {}
 
     explicit ArgPrinter(__locale_data* const (&&arg)[N], const std::string& name = "", std::ostream* os = &abii_stream,
-                        const int flags = 3) : arg_(rval_arg_), rval_arg_(arg), name_(name),
-                                               print_endl_(flags & PRINT_ENDL), recurse_(flags & RECURSE), os_(os) {}
+                        const int flags = 3) : arg_(rval_arg_), rval_arg_(arg), name_(name), recurse_(flags & RECURSE),
+                                               os_(os) {}
 
     [[nodiscard]] std::string get_name() const override { return name_; }
     void set_name(const std::string& name) override { name_ = name; }
@@ -344,8 +331,6 @@ struct ArgPrinter<__locale_data* const[N]>final : VirtArgPrinter
         });
     }
 
-    [[nodiscard]] bool get_print_endl() const override { return print_endl_; }
-    void set_print_endl(const bool print_endl) override { print_endl_ = print_endl; }
     [[nodiscard]] bool get_recurse() const { return recurse_; }
     void set_recurse(const bool recurse) { recurse_ = recurse; }
     [[nodiscard]] std::ostream* get_os() const override { return os_; }
@@ -364,7 +349,7 @@ struct ArgPrinter<__locale_data* const[N]>final : VirtArgPrinter
                const std::map<size_t, std::function<std::string(const void*)>>& enum_printers,
                std::ostream* os = &abii_stream, const int flags = 1)
         : arg_(arg), name_(name), enum_printers_(enum_printers), depth_(previous_depth + 1),
-          print_endl_(flags & PRINT_ENDL), recurse_(flags & RECURSE), os_(os) {}
+          recurse_(flags & RECURSE), os_(os) {}
 
 private:
     __locale_data* const (&arg_)[N];
@@ -373,7 +358,6 @@ private:
     ReferenceType* len_ = new Reference(def_len_);
     std::map<size_t, std::function<std::string(const void*)>> enum_printers_;
     size_t depth_ = 0;
-    bool print_endl_ = true;
     bool recurse_ = true;
     std::ostream* os_;
     static size_t def_len_;
@@ -393,11 +377,10 @@ template <typename T>
 struct ArgPrinter<T[0]>final : VirtArgPrinter
 {
     explicit ArgPrinter(T (&arg)[0], const std::string& name = "", std::ostream* os = &abii_stream,
-                        const int flags = 1) : arg_(arg), name_(name), print_endl_(flags & PRINT_ENDL), os_(os) {}
+                        const int flags = 1) : arg_(arg), name_(name), os_(os) {}
 
     explicit ArgPrinter(T (&&arg)[0], const std::string& name = "", std::ostream* os = &abii_stream,
-                        const int flags = 1) : arg_(rval_arg_), rval_arg_(arg), name_(name),
-                                               print_endl_(flags & PRINT_ENDL), os_(os) {}
+                        const int flags = 1) : arg_(rval_arg_), rval_arg_(arg), name_(name), os_(os) {}
 
     [[nodiscard]] std::string get_name() const override { return name_; }
     void set_name(const std::string& name) override { name_ = name; }
@@ -429,8 +412,6 @@ struct ArgPrinter<T[0]>final : VirtArgPrinter
         });
     }
 
-    [[nodiscard]] bool get_print_endl() const override { return print_endl_; }
-    void set_print_endl(const bool print_endl) override { print_endl_ = print_endl; }
     [[nodiscard]] std::ostream* get_os() const override { return os_; }
     void set_os(std::ostream* os) override { os_ = os; }
 
@@ -446,8 +427,7 @@ struct ArgPrinter<T[0]>final : VirtArgPrinter
     ArgPrinter(T (&arg)[0], const std::string& name, const size_t previous_depth,
                const std::map<size_t, std::function<std::string(const void*)>>& enum_printers,
                std::ostream* os = &abii_stream, const int flags = 1)
-        : arg_(arg), name_(name), enum_printers_(enum_printers), depth_(previous_depth + 1),
-          print_endl_(flags & PRINT_ENDL), os_(os) {}
+        : arg_(arg), name_(name), enum_printers_(enum_printers), depth_(previous_depth + 1), os_(os) {}
 
 private:
     T (&arg_)[0];
@@ -456,7 +436,6 @@ private:
     ReferenceType* len_ = new Reference(def_len_);
     std::map<size_t, std::function<std::string(const void*)>> enum_printers_;
     size_t depth_ = 0;
-    bool print_endl_ = true;
     std::ostream* os_;
     static size_t def_len_;
 };
@@ -475,11 +454,10 @@ template <typename T>
 struct ArgPrinter<const T[0]>final : VirtArgPrinter
 {
     explicit ArgPrinter(const T (&arg)[0], const std::string& name = "", std::ostream* os = &abii_stream,
-                        const int flags = 1) : arg_(arg), name_(name), print_endl_(flags & PRINT_ENDL), os_(os) {}
+                        const int flags = 1) : arg_(arg), name_(name), os_(os) {}
 
     explicit ArgPrinter(const T (&&arg)[0], const std::string& name = "", std::ostream* os = &abii_stream,
-                        const int flags = 1) : arg_(rval_arg_), rval_arg_(arg), name_(name),
-                                               print_endl_(flags & PRINT_ENDL), os_(os) {}
+                        const int flags = 1) : arg_(rval_arg_), rval_arg_(arg), name_(name), os_(os) {}
 
     [[nodiscard]] std::string get_name() const override { return name_; }
     void set_name(const std::string& name) override { name_ = name; }
@@ -511,8 +489,6 @@ struct ArgPrinter<const T[0]>final : VirtArgPrinter
         });
     }
 
-    [[nodiscard]] bool get_print_endl() const override { return print_endl_; }
-    void set_print_endl(const bool print_endl) override { print_endl_ = print_endl; }
     [[nodiscard]] std::ostream* get_os() const override { return os_; }
     void set_os(std::ostream* os) override { os_ = os; }
 
@@ -528,8 +504,7 @@ struct ArgPrinter<const T[0]>final : VirtArgPrinter
     ArgPrinter(const T (&arg)[0], const std::string& name, const size_t previous_depth,
                const std::map<size_t, std::function<std::string(const void*)>>& enum_printers,
                std::ostream* os = &abii_stream, const int flags = 1)
-        : arg_(arg), name_(name), enum_printers_(enum_printers), depth_(previous_depth + 1),
-          print_endl_(flags & PRINT_ENDL), os_(os) {}
+        : arg_(arg), name_(name), enum_printers_(enum_printers), depth_(previous_depth + 1), os_(os) {}
 
 private:
     const T (&arg_)[0];
@@ -538,7 +513,6 @@ private:
     ReferenceType* len_ = new Reference(def_len_);
     std::map<size_t, std::function<std::string(const void*)>> enum_printers_;
     size_t depth_ = 0;
-    bool print_endl_ = true;
     std::ostream* os_;
     static size_t def_len_;
 };
@@ -559,16 +533,14 @@ size_t ArgPrinter<const T[0]>::def_len_ = 0;
 template <typename T, size_t N>
 void ArgPrinter<T[N]>::print_arg()
 {
-    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<void*>(arg_);
+    prefix += '\t';
+    *os_ << std::endl << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<void*>(arg_);
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
     if (recurse_ && bomb_detector(arg_, len_->get_ref()))
     {
-        *os_ << std::endl;
-        const auto old_prefix = prefix;
-        prefix += "\t";
         if (std::ranges::find(used_addrs, reinterpret_cast<uintptr_t>(arg_)) != used_addrs.end())
-            *os_ << prefix << "[RECURSION]";
+            *os_ << std::endl << prefix << '\t' << "[RECURSION]";
         else
         {
             used_addrs.push_back(reinterpret_cast<uintptr_t>(arg_));
@@ -577,39 +549,27 @@ void ArgPrinter<T[N]>::print_arg()
                 std::stringstream ss;
                 ss << name_ << "[" << i << "]";
                 auto next = new ArgPrinter<T>(arg_[i], ss.str(), depth_, enum_printers_, os_);
-                if (i == N - 1)
-                    next->set_print_endl(false);
-
                 next->print_arg();
             }
             used_addrs.pop_back();
         }
-        prefix = old_prefix;
     }
-    if (print_endl_)
-        *os_ << std::endl;
+    prefix.pop_back();
 }
 
 #ifndef BIT32
 template <>
 inline void ArgPrinter<va_list>::print_arg()
 {
-    *os_ << prefix << name_ << ": (" << get_type(arg_) << ")";
+    prefix += '\t';
+    *os_ << std::endl << prefix << name_ << ": (" << get_type(arg_) << ")";
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
-    const auto old_prefix = prefix;
-    prefix += "\t";
     std::stringstream ss;
     ss << va_list_printer(fmt_.c_str(), arg_, va_list_printer_buf_size_);
-    prefix = old_prefix;
-    if (std::string str = ss.str(); !str.empty())
-    {
-        if (!print_endl_)
-            str.pop_back();
-        *os_ << std::endl << str;
-    }
-    else if (print_endl_)
-        *os_ << std::endl;
+    if (const std::string str = ss.str(); !str.empty())
+        *os_ << std::endl << prefix << str;
+    prefix.pop_back();
 }
 #endif
 
@@ -625,16 +585,14 @@ inline void ArgPrinter<va_list>::print_arg()
 template <typename T, size_t N>
 void ArgPrinter<const T[N]>::print_arg()
 {
-    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<const void*>(arg_);
+    prefix += '\t';
+    *os_ << std::endl << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<const void*>(arg_);
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
     if (recurse_ && bomb_detector(arg_, len_->get_ref()))
     {
-        *os_ << std::endl;
-        const auto old_prefix = prefix;
-        prefix += "\t";
         if (std::ranges::find(used_addrs, reinterpret_cast<uintptr_t>(arg_)) != used_addrs.end())
-            *os_ << prefix << "[RECURSION]";
+            *os_ << std::endl << prefix << '\t' << "[RECURSION]";
         else
         {
             used_addrs.push_back(reinterpret_cast<uintptr_t>(arg_));
@@ -643,32 +601,25 @@ void ArgPrinter<const T[N]>::print_arg()
                 std::stringstream ss;
                 ss << name_ << "[" << i << "]";
                 auto next = new ArgPrinter<const T>(arg_[i], ss.str(), depth_, enum_printers_, os_);
-                if (i == N - 1)
-                    next->set_print_endl(false);
-
                 next->print_arg();
             }
             used_addrs.pop_back();
         }
-        prefix = old_prefix;
     }
-    if (print_endl_)
-        *os_ << std::endl;
+    prefix.pop_back();
 }
 
 template <size_t N>
 void ArgPrinter<__locale_data*[N]>::print_arg()
 {
-    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<void*>(arg_);
+    prefix += '\t';
+    *os_ << std::endl << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<void*>(arg_);
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
     if (recurse_ && bomb_detector(arg_, len_->get_ref()))
     {
-        *os_ << std::endl;
-        const auto old_prefix = prefix;
-        prefix += "\t";
         if (std::ranges::find(used_addrs, reinterpret_cast<uintptr_t>(arg_)) != used_addrs.end())
-            *os_ << prefix << "[RECURSION]";
+            *os_ << std::endl << prefix << '\t' << "[RECURSION]";
         else
         {
             used_addrs.push_back(reinterpret_cast<uintptr_t>(arg_));
@@ -677,32 +628,25 @@ void ArgPrinter<__locale_data*[N]>::print_arg()
                 std::stringstream ss;
                 ss << name_ << "[" << i << "]";
                 auto next = new ArgPrinter<void* const>(arg_[i], ss.str(), depth_, enum_printers_, os_);
-                if (i == N - 1)
-                    next->set_print_endl(false);
-
                 next->print_arg();
             }
             used_addrs.pop_back();
         }
-        prefix = old_prefix;
     }
-    if (print_endl_)
-        *os_ << std::endl;
+    prefix.pop_back();
 }
 
 template <size_t N>
 void ArgPrinter<__locale_data* const[N]>::print_arg()
 {
-    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<void*>(arg_);
+    prefix += '\t';
+    *os_ << std::endl << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<void*>(arg_);
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
     if (recurse_ && bomb_detector(arg_, len_->get_ref()))
     {
-        *os_ << std::endl;
-        const auto old_prefix = prefix;
-        prefix += "\t";
         if (std::ranges::find(used_addrs, reinterpret_cast<uintptr_t>(arg_)) != used_addrs.end())
-            *os_ << prefix << "[RECURSION]";
+            *os_ << std::endl << prefix << '\t' << "[RECURSION]";
         else
         {
             used_addrs.push_back(reinterpret_cast<uintptr_t>(arg_));
@@ -711,17 +655,12 @@ void ArgPrinter<__locale_data* const[N]>::print_arg()
                 std::stringstream ss;
                 ss << name_ << "[" << i << "]";
                 auto next = new ArgPrinter<void* const>(arg_[i], ss.str(), depth_, enum_printers_, os_);
-                if (i == N - 1)
-                    next->set_print_endl(false);
-
                 next->print_arg();
             }
             used_addrs.pop_back();
         }
-        prefix = old_prefix;
     }
-    if (print_endl_)
-        *os_ << std::endl;
+    prefix.pop_back();
 }
 
 /*
@@ -736,11 +675,11 @@ void ArgPrinter<__locale_data* const[N]>::print_arg()
 template <typename T>
 void ArgPrinter<T[0]>::print_arg()
 {
-    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<void*>(arg_);
+    prefix += '\t';
+    *os_ << std::endl << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<void*>(arg_);
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
-    if (print_endl_)
-        *os_ << std::endl;
+    prefix.pop_back();
 }
 
 /*
@@ -755,11 +694,11 @@ void ArgPrinter<T[0]>::print_arg()
 template <typename T>
 void ArgPrinter<const T[0]>::print_arg()
 {
-    *os_ << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<const void*>(arg_);
+    prefix += '\t';
+    *os_ << std::endl << prefix << name_ << ": (" << get_type(arg_) << ") " << static_cast<const void*>(arg_);
     if (enum_printers_.contains(depth_))
         *os_ << " [" << enum_printer(arg_) << "]";
-    if (print_endl_)
-        *os_ << std::endl;
+    prefix.pop_back();
 }
 }
 

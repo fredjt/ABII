@@ -41,12 +41,10 @@
             if ((real_##func) == nullptr) \
                 std::cerr << "Error in `dlsym`: " << dlerror() << std::endl; \
         } \
-        abii::prefix = ""; \
         const auto abii_args = new abii::ArgsPrinter();
 
 #define OVERRIDE_SUFFIX(func, ret) \
         abii_args->print_args(); \
-        abii::abii_stream << std::endl; \
         delete abii_args; \
         ENABLE_OVERRIDES \
         return ret; \
@@ -59,15 +57,11 @@
     }
 
 #define OVERRIDE_STREAM_PREFIX \
-    const auto abii_old_prefix = abii::prefix; \
-    abii::prefix = abii::prefix + "\t"; \
-    os << std::endl; \
     const auto abii_args = new abii::ArgsPrinter();
 
 #define OVERRIDE_STREAM_SUFFIX \
     abii_args->print_args(); \
     delete abii_args; \
-    abii::prefix = abii_old_prefix; \
     return os;
 
 #define OVERRIDE_VARIADIC_PREFIX(real_func, fmt) \
@@ -80,7 +74,6 @@
         abii_args->print_args(); \
         va_end(abii_vargs); \
         delete abii_args; \
-        abii::abii_stream << std::endl; \
         ENABLE_OVERRIDES \
         __builtin_return(ret); \
     } \
@@ -136,13 +129,46 @@ struct VirtArgPrinter
     virtual void set_name(const std::string& name) = 0;
     [[nodiscard]] virtual std::ostream* get_os() const = 0;
     virtual void set_os(std::ostream* os) = 0;
-    [[nodiscard]] virtual bool get_print_endl() const = 0;
-    virtual void set_print_endl(bool print_endl) = 0;
     [[nodiscard]] virtual std::string get_value() const = 0;
     virtual void print_arg() = 0;
 };
 
-typedef std::string pre_fmtd_str;
+typedef struct funcname_str
+{
+    std::string str;
+
+    funcname_str() = default;
+    funcname_str(const char* o) : str(o) {}
+
+    funcname_str& operator=(const funcname_str&) = default;
+    funcname_str& operator=(funcname_str&&) noexcept = default;
+
+    funcname_str& operator=(const std::string& o)
+    {
+        str = o;
+        return *this;
+    }
+
+    funcname_str& operator=(std::string&& o) noexcept
+    {
+        str = std::move(o);
+        return *this;
+    }
+
+    funcname_str& operator=(const char* o)
+    {
+        str = o;
+        return *this;
+    }
+
+    friend std::ostream& operator<<(std::ostream& os, const funcname_str& pfs);
+} funcname_str;
+
+inline std::ostream& operator<<(std::ostream& os, const funcname_str& pfs)
+{
+    return os << pfs.str;
+}
+
 typedef std::vector<VirtArgPrinter*> ArgsVector;
 
 template <typename T = unsigned long long>
@@ -546,9 +572,6 @@ struct ArgsPrinter
     void push_func(VirtArgPrinter* arg)
     {
         func_ = arg;
-        func_->set_print_endl(false);
-        func_->print_arg();
-        prefix += '\t';
     }
 
     void push_return(VirtArgPrinter* ret)
@@ -561,9 +584,9 @@ struct ArgsPrinter
     {
         if (func_ != nullptr)
         {
+            func_->print_arg();
             if (!ret_val_.empty())
                 *func_->get_os() << " = " << ret_val_;
-            *func_->get_os() << std::endl;
         }
         std::ranges::for_each(args_, [&](const auto& arg)
         {
