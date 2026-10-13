@@ -630,7 +630,13 @@ struct Reference final : ReferenceType
 private:
     T& ref_;
 };
+
+static constexpr std::string data_file_prefix = "abii_dump_";
+static constexpr std::string data_file_suffix = ".bin";
+inline thread_local uint16_t file_num = 0;
 }
+
+#define MAX_PRINT_BYTES 128
 
 #include "ArgPrinter.tpp"
 

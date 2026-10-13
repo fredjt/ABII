@@ -539,6 +539,38 @@ void ArgPrinter<T[N]>::print_arg()
         *os_ << " [" << enum_printer(arg_) << "]";
     if (recurse_ && bomb_detector(arg_, len_->get_ref()))
     {
+        if constexpr (std::is_same_v<T, char>)
+        {
+            if (auto len = len_->get_ref() == 0 ? strlen(arg_) : len_->get_ref(); len > MAX_PRINT_BYTES)
+            {
+                std::stringstream fname_ss;
+                fname_ss << abii_logdir << "/" << data_file_prefix << getpid() << "_" << gettid() << "_" << file_num++
+                    << data_file_suffix;
+                auto os = std::ofstream(fname_ss.str());
+                os.write(arg_, static_cast<std::streamsize>(len));
+                os.close();
+                *os_ << std::endl << prefix << '\t' << fname_ss.str();
+                prefix.pop_back();
+                return;
+            }
+        }
+        if constexpr (std::is_same_v<T, wchar_t>)
+        {
+            if (auto len = len_->get_ref() == 0
+                               ? std::wcslen(arg_) * sizeof(wchar_t)
+                               : len_->get_ref() * sizeof(wchar_t); len > MAX_PRINT_BYTES)
+            {
+                std::stringstream fname_ss;
+                fname_ss << abii_logdir << "/" << data_file_prefix << getpid() << "_" << gettid() << "_" << file_num++
+                    << data_file_suffix;
+                auto os = std::ofstream(fname_ss.str());
+                os.write(reinterpret_cast<const char*>(arg_), static_cast<std::streamsize>(len));
+                os.close();
+                *os_ << std::endl << prefix << '\t' << fname_ss.str();
+                prefix.pop_back();
+                return;
+            }
+        }
         if (std::ranges::find(used_addrs, reinterpret_cast<uintptr_t>(arg_)) != used_addrs.end())
             *os_ << std::endl << prefix << '\t' << "[RECURSION]";
         else
@@ -591,6 +623,38 @@ void ArgPrinter<const T[N]>::print_arg()
         *os_ << " [" << enum_printer(arg_) << "]";
     if (recurse_ && bomb_detector(arg_, len_->get_ref()))
     {
+        if constexpr (std::is_same_v<T, char>)
+        {
+            if (auto len = len_->get_ref() == 0 ? strlen(arg_) : len_->get_ref(); len > MAX_PRINT_BYTES)
+            {
+                std::stringstream fname_ss;
+                fname_ss << abii_logdir << "/" << data_file_prefix << getpid() << "_" << gettid() << "_" << file_num++
+                    << data_file_suffix;
+                auto os = std::ofstream(fname_ss.str());
+                os.write(arg_, static_cast<std::streamsize>(len));
+                os.close();
+                *os_ << std::endl << prefix << '\t' << fname_ss.str();
+                prefix.pop_back();
+                return;
+            }
+        }
+        if constexpr (std::is_same_v<T, wchar_t>)
+        {
+            if (auto len = len_->get_ref() == 0
+                               ? std::wcslen(arg_) * sizeof(wchar_t)
+                               : len_->get_ref() * sizeof(wchar_t); len > MAX_PRINT_BYTES)
+            {
+                std::stringstream fname_ss;
+                fname_ss << abii_logdir << "/" << data_file_prefix << getpid() << "_" << gettid() << "_" << file_num++
+                    << data_file_suffix;
+                auto os = std::ofstream(fname_ss.str());
+                os.write(reinterpret_cast<const char*>(arg_), static_cast<std::streamsize>(len));
+                os.close();
+                *os_ << std::endl << prefix << '\t' << fname_ss.str();
+                prefix.pop_back();
+                return;
+            }
+        }
         if (std::ranges::find(used_addrs, reinterpret_cast<uintptr_t>(arg_)) != used_addrs.end())
             *os_ << std::endl << prefix << '\t' << "[RECURSION]";
         else
